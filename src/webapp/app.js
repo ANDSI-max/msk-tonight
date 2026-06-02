@@ -17,22 +17,38 @@ function applyTheme() {
 }
 applyTheme();
 
-// API helpers
+// API helpers - с обработкой ошибок
 const API_BASE = window.location.origin;
 const HEADERS = { "Content-Type": "application/json" };
 
 async function apiGet(path) {
-  const res = await fetch(API_BASE + path, { headers: HEADERS });
-  return res.json();
+  try {
+    const res = await fetch(API_BASE + path, { headers: HEADERS });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    console.log("API GET", path, "=>", data);
+    return data;
+  } catch (e) {
+    console.error("API GET error:", e, "path:", path);
+    throw e;
+  }
 }
 
 async function apiPost(path, body) {
-  const res = await fetch(API_BASE + path, {
-    method: "POST",
-    headers: HEADERS,
-    body: JSON.stringify(body),
-  });
-  return res.json();
+  try {
+    const res = await fetch(API_BASE + path, {
+      method: "POST",
+      headers: HEADERS,
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    console.log("API POST", path, "=>", data);
+    return data;
+  } catch (e) {
+    console.error("API POST error:", e, "path:", path);
+    throw e;
+  }
 }
 
 // Состояние
@@ -91,6 +107,7 @@ async function loadEvents() {
       container.innerHTML = '<div class="empty-state">Ошибка загрузки</div>';
     }
   } catch (e) {
+    console.error("Load events error:", e);
     container.innerHTML = '<div class="empty-state">Нет соединения</div>';
   }
 }
@@ -115,7 +132,6 @@ function renderCards() {
     if (idx === 0) container.appendChild(card);
   });
 
-  // Показываем MainButton если есть карточки
   if (events.length > currentCardIndex) {
     tg.MainButton.show();
     tg.MainButton.setText("Пропустить событие");
@@ -133,8 +149,9 @@ function createCard(event, isTop) {
   const price = formatPrice(event.price_min, event.price_max);
   const category = translateCategory(event.category);
 
+  // Исправлено: используем event_id для data-атрибута
   card.innerHTML = `
-    <img class="card-image" src="${event.image_url || ""}" alt="${event.title}" onerror="this.style.background='#ccc'" />
+    <img class="card-image" src="${event.image_url || ''}" alt="${event.title}" onerror="this.src='https://via.placeholder.com/800x600?text=No+Image'" />
     <div class="card-content">
       <div class="card-title">${escapeHtml(event.title)}</div>
       <div class="card-meta">${category} · ${escapeHtml(event.venue_name || "")}</div>
@@ -204,7 +221,6 @@ function setupSwipe(card, event) {
   document.addEventListener("mouseup", onEnd);
   document.addEventListener("touchend", onEnd);
 
-  // Кнопки
   card.querySelector(".btn-dislike").addEventListener("click", (e) => {
     e.stopPropagation();
     swipe(card, event, "left");
@@ -221,7 +237,6 @@ function setupSwipe(card, event) {
 
 async function swipe(card, event, direction) {
   tg.HapticFeedback?.impactOccurred("medium");
-
   card.classList.add(direction === "left" ? "swipe-left" : "swipe-right");
 
   try {
@@ -252,27 +267,33 @@ function onSkip() {
   }
 }
 
-// План
+// ПЛАН - ИСПРАВЛЕНО
 async function loadPlan() {
   const container = document.getElementById("plan-container");
   container.innerHTML = '<div class="loading">Загружаю план...</div>';
 
   try {
+    console.log("Loading plan...");
     const data = await apiGet("/api/plan");
+    console.log("Plan data:", data);
+    
     if (data.ok) {
       plan = data.plan || [];
+      console.log("Plan items:", plan.length);
       renderPlan();
     } else {
-      container.innerHTML = '<div class="empty-state">Ошибка</div>';
+      container.innerHTML = '<div class="empty-state">Ошибка: ' + (data.error || 'Неизвестная') + '</div>';
     }
   } catch (e) {
-    container.innerHTML = '<div class="empty-state">Нет соединения</div>';
+    console.error("Load plan error:", e);
+    container.innerHTML = '<div class="empty-state">Нет соединения с сервером</div>';
   }
 }
 
 function renderPlan() {
   const container = document.getElementById("plan-container");
-  if (plan.length === 0) {
+  
+  if (!plan || plan.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
         <div class="empty-state-emoji">📅</div>
@@ -283,22 +304,25 @@ function renderPlan() {
   }
 
   container.innerHTML = plan
-    .map(
-      (item) => `
+    .map((item) => {
+      console.log("Render plan item:", item);
+      // Исправлено: используем item.event_id для кнопок
+      const eventId = item.event_id || item.id;
+      return `
       <div class="plan-item">
-        <img class="plan-item-image" src="${item.image_url || ""}" onerror="this.style.background='#ccc'" />
+        <img class="plan-item-image" src="${item.image_url || ''}" onerror="this.src='https://via.placeholder.com/800x600?text=No+Image'" />
         <div class="plan-item-content">
           <div class="plan-item-title">${escapeHtml(item.title)}</div>
           <div class="plan-item-meta">${translateCategory(item.category)} · ${escapeHtml(item.venue_name || "")}</div>
           <div class="plan-item-actions">
-            <button class="btn btn-primary btn-attend" data-event-id="${item.id}">Я был</button>
-            <button class="btn btn-secondary btn-share" data-event-id="${item.id}">Поделиться</button>
-            <button class="btn btn-outline btn-remove" data-event-id="${item.id}">Удалить</button>
+            <button class="btn btn-primary btn-attend" data-event-id="${eventId}">Я был</button>
+            <button class="btn btn-secondary btn-share" data-event-id="${eventId}">Поделиться</button>
+            <button class="btn btn-outline btn-remove" data-event-id="${eventId}">Удалить</button>
           </div>
         </div>
       </div>
-    `
-    )
+    `;
+    })
     .join("");
 
   container.querySelectorAll(".btn-attend").forEach((btn) => {
@@ -318,7 +342,7 @@ async function addToPlan(eventId) {
     await apiPost("/api/plan/add", { event_id: eventId });
     tg.showPopup({ message: "Добавлено в план!", buttons: [{ type: "ok" }] });
   } catch (e) {
-    tg.showPopup({ message: "Ошибка", buttons: [{ type: "ok" }] });
+    tg.showPopup({ message: "Ошибка: " + e.message, buttons: [{ type: "ok" }] });
   }
 }
 
@@ -335,7 +359,7 @@ async function markAttended(eventId) {
       loadPlan();
     }
   } catch (e) {
-    tg.showPopup({ message: "Ошибка", buttons: [{ type: "ok" }] });
+    tg.showPopup({ message: "Ошибка: " + e.message, buttons: [{ type: "ok" }] });
   }
 }
 
@@ -344,12 +368,13 @@ async function removeFromPlan(eventId) {
     await apiPost("/api/plan/remove", { event_id: eventId });
     loadPlan();
   } catch (e) {
-    console.error(e);
+    console.error("Remove error:", e);
+    tg.showPopup({ message: "Ошибка при удалении", buttons: [{ type: "ok" }] });
   }
 }
 
 async function shareEvent(eventId) {
-  const event = plan.find((e) => e.id === eventId);
+  const event = plan.find((e) => e.event_id === eventId || e.id === eventId);
   if (!event) return;
 
   const botUsername = tg.initDataUnsafe?.user?.username || "msk_tonight_bot";
@@ -358,7 +383,6 @@ async function shareEvent(eventId) {
   if (tg.shareUrl) {
     tg.shareUrl(shareUrl, `Пойдём на ${event.title}?`);
   } else {
-    // Fallback: копируем в буфер
     try {
       await navigator.clipboard.writeText(shareUrl);
       tg.showPopup({ message: "Ссылка скопирована!", buttons: [{ type: "ok" }] });
@@ -377,7 +401,7 @@ async function loadProfile() {
       renderProfile();
     }
   } catch (e) {
-    console.error(e);
+    console.error("Load profile error:", e);
   }
 }
 
