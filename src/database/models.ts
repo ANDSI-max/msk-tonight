@@ -122,7 +122,7 @@ export const StatsModel = {
     const totalPlanned = (db.prepare("SELECT COUNT(*) AS c FROM user_plans WHERE user_id = ?").get(userId) as { c: number }).c;
     const totalAttended = (db.prepare("SELECT COUNT(*) AS c FROM user_plans WHERE user_id = ? AND attended = 1").get(userId) as { c: number }).c;
     const likes = (db.prepare("SELECT COUNT(*) AS c FROM swipes WHERE user_id = ? AND direction = 'like'").get(userId) as { c: number }).c;
-    const categories = db.prepare(`SELECT e.category AS category, COUNT(*) AS n FROM user_plans p JOIN events e ON e.id = p.event_id WHERE p.user_id = ? GROUP BY e.category ORDER BY n DESC`).all(userId);
+    const categories = db.prepare(`SELECT e.category AS category, COUNT(*) AS n FROM user_plans p JOIN events e ON e.id = p.event_id WHERE p.user_id = ? GROUP BY e.category ORDER BY n DESC`).all(userId) as Array<{ category: string | null; n: number }>;
     return { totalPlanned, totalAttended, likes, categories };
   },
 };
