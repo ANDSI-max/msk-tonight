@@ -15,12 +15,16 @@ RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm install --omit=dev && apk del python3 make g++ || true
+RUN npm install --omit=dev
 
 COPY --from=builder /app/dist ./dist
 
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV DATABASE_URL=/data/msk_tonight.db
+
+RUN mkdir -p /data
+
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \

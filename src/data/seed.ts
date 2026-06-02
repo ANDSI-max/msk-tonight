@@ -1,5 +1,4 @@
-import { initDatabase, saveDatabase } from "../database/db";
-import { getDb } from "../database/db";
+import db from "../database/db";
 import { MOCK_EVENTS } from "./mock-events";
 
 function todayAt(hours: number): Date {
@@ -14,40 +13,28 @@ function fmt(d: Date): string {
 }
 
 export function seedEvents(force = false) {
-  const db = getDb();
-  const row = db.exec("SELECT COUNT(*) AS c FROM events")[0]?.values[0][0] as number || 0;
-  
-  if (!force && row > 0) {
-    console.log(`[seed] В БД уже ${row} событий, пропускаю.`);
+  const row = db.prepare("SELECT COUNT(*) AS c FROM events").get() as { c: number };
+  if (!force && row.c > 0) {
+    console.log(`[seed] В БД уже ${row.c} событий, пропускаю.`);
     return;
   }
+  if (force) db.exec("DELETE FROM events;");
   
-  if (force) {
-    db.run("DELETE FROM events;");
-  }
+  const insert = db.prepare(`INSERT INTO events (title, description, category, venue_name, address, district, start_time, end_time, price_min, price_max, image_url, external_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
   
-  for (const e of MOCK_EVENTS) {
-    const start = todayAt(e.hours_from_now);
-    const end = todayAt(e.hours_from_now + e.duration_hours);
-    db.run(`
-      INSERT INTO events
-        (title, description, category, venue_name, address, district,
-         start_time, end_time, price_min, price_max, image_url, external_url)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-      e.title, e.description, e.category, e.venue_name, e.address, e.district,
-      fmt(start), fmt(end), e.price_min, e.price_max, e.image_url, e.external_url
-    ]);
-  }
+  const tx = db.transaction((items: typeof MOCK_EVENTS) => {
+    for (const e of items) {
+      const start = todayAt(e.hours_from_now);
+      const end = todayAt(e.hours_from_now + e.duration_hours);
+      insert.run(e.title, e.description, e.category, e.venue_name, e.address, e.district, fmt(start), fmt(end), e.price_min, e.price_max, e.image_url, e.external_url);
+    }
+  });
   
-  saveDatabase();
+  tx(MOCK_EVENTS);
   console.log(`[seed] Загружено ${MOCK_EVENTS.length} событий.`);
 }
 
 if (require.main === module) {
   const force = process.argv.includes("--force");
-  initDatabase().then(() => {
-    seedEvents(force);
-    process.exit(0);
-  }).catch(console.error);
+  seedEvents(force);
 }
