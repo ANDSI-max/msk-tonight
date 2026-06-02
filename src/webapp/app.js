@@ -61,6 +61,7 @@ let currentCardIndex = 0;
 const tabs = {
   today: document.getElementById("tab-today"),
   plan: document.getElementById("tab-plan"),
+  bookings: document.getElementById("tab-bookings"),
   profile: document.getElementById("tab-profile"),
 };
 const navBtns = document.querySelectorAll(".nav-btn");
@@ -74,6 +75,7 @@ navBtns.forEach((btn) => {
     tabs[tabName].classList.add("active");
 
     if (tabName === "plan") loadPlan();
+    if (tabName === "bookings") loadBookings();
     if (tabName === "profile") loadProfile();
     if (tabName === "today") renderCards();
   });
@@ -232,6 +234,10 @@ function setupSwipe(card, event) {
   card.querySelector(".btn-add").addEventListener("click", (e) => {
     e.stopPropagation();
     addToPlan(event.id);
+  });
+  card.querySelector(".btn-book").addEventListener("click", (e) => {
+    e.stopPropagation();
+    bookEvent(event.id);
   });
 }
 
@@ -412,6 +418,11 @@ function renderProfile() {
   document.getElementById("stat-planned").textContent = profile.stats.totalPlanned;
   document.getElementById("stat-attended").textContent = profile.stats.totalAttended;
   document.getElementById("stat-likes").textContent = profile.stats.likes;
+  
+  // Если есть booking stats (из profiles)
+  if (profile.booking_stats) {
+    document.getElementById("stat-bookings").textContent = profile.booking_stats.totalBookings;
+  }
 
   const badgesContainer = document.getElementById("badges-container");
   if (!profile.badges || profile.badges.length === 0) {

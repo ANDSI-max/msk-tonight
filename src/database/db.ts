@@ -59,7 +59,25 @@ db.exec(`
     FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
   );
 
-  CREATE TABLE IF NOT EXISTS user_badges (
+  CREATE TABLE IF NOT EXISTS bookings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  event_id INTEGER NOT NULL,
+  ticket_count INTEGER DEFAULT 1,
+  total_price INTEGER NOT NULL,
+  status TEXT DEFAULT 'pending' CHECK(status IN ('pending','confirmed','cancelled','used')),
+  booking_reference TEXT UNIQUE,
+  external_url TEXT,
+  booked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_bookings_user ON bookings(user_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_event ON bookings(event_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
+
+CREATE TABLE IF NOT EXISTS user_badges (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     badge_id TEXT NOT NULL,

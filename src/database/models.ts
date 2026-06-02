@@ -127,11 +127,78 @@ export const StatsModel = {
   },
 };
 
+export interface BookingRow {
+  id: number;
+  user_id: number;
+  event_id: number;
+  ticket_count: number;
+  total_price: number;
+  status: string;
+  booking_reference: string | null;
+  external_url: string | null;
+  booked_at: string;
+  title?: string;
+  venue_name?: string;
+  start_time?: string;
+  image_url?: string;
+}
+
 export const BadgeModel = {
   earn(userId: number, badgeId: string) {
     db.prepare("INSERT OR IGNORE INTO user_badges (user_id, badge_id) VALUES (?, ?)").run(userId, badgeId);
   },
   list(userId: number) {
     return db.prepare("SELECT badge_id, earned_at FROM user_badges WHERE user_id = ?").all(userId);
+  },
+};
+
+export const BookingModel = {
+  create(userId: number, eventId: number, ticketCount: number, totalPrice: number, externalUrl?: string) {
+    const ref = 'BK' + Date.now() + Math.random().toString(36).substr(2, 6).toUpperCase();
+    const info = db.prepare(`
+      INSERT INTO bookings (user_id, event_id, ticket_count, total_price, booking_reference, external_url, status)
+      VALUES (?, ?, ?, ?, ?, ?, 'confirmed')
+    `).run(userId, eventId, ticketCount, totalPrice, ref, externalUrl || null);
+    
+    return db.prepare("SELECT * FROM bookings WHERE id = ?").get(info.lastInsertRowid) as BookingRow;
+  },
+
+  list(userId: number): BookingRow[] {
+    return db.prepare(`
+      SELECT b.*, e.title, e.venue_name, e.start_time, e.image_url
+      FROM bookings b
+      JOIN events e ON e.id = b.event_id
+      WHERE b.user_id = ?
+      ORDER BY b.booked_at DESC
+    `).all(userId) as BookingRow[];
+  },
+
+  cancel(userId: number, bookingId: number) {
+    db.prepare("UPDATE bookings SET status = 'cancelled' WHERE id = ? AND user_id = ?").run(bookingId, userId);
+  },
+
+  markUsed(userId: number, bookingId: number) {
+    db.prepare("UPDATE bookings SET status = 'used' WHERE id = ? AND user_id = ?").run(bookingId, userId);
+  },
+
+  getByReference(ref: string): BookingRow | undefined {
+    return db.prepare("SELECT * FROM bookings WHERE booking_reference = ?").get(ref) as BookingRow | undefined;
+  },
+
+  stats(userId: number) {
+    const row = db.prepare(`
+      SELECT 
+        COUNT(*) as total,
+        SUM(total_price) as spent,
+        SUM(ticket_count) as tickets
+      FROM bookings 
+      WHERE user_id = ? AND status = 'confirmed'
+    `).get(userId) as { total: number; spent: number; tickets: number };
+    
+    return {
+      totalBookings: row.total || 0,
+      totalSpent: row.spent || 0,
+      totalTickets: row.tickets || 0,
+    };
   },
 };

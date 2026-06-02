@@ -6,7 +6,7 @@ import {
   StatsModel,
   SwipeModel,
   UserModel,
-  BadgeModel,
+  BadgeModel, BookingModel,
 } from "../database/models";
 import { recalcBadges, getRecommendations, BADGES } from "./events";
 
@@ -128,13 +128,66 @@ router.get("/profile", authMiddleware(false), (req: AuthedRequest, res) => {
   const user = UserModel.getByTelegramId(req.telegramId!) ??
                { id: req.userId, streak_days: 0, first_name: "Dev" };
   const stats = StatsModel.forUser(req.userId!);
+  const bookingStats = BookingModel.stats(req.userId!);
   const earnedBadges = BadgeModel.list(req.userId!) as { badge_id: string; earned_at: string }[];
   const badges = BADGES.map((b) => ({
     ...b,
     earned: earnedBadges.some((e) => e.badge_id === b.id),
     earned_at: earnedBadges.find((e) => e.badge_id === b.id)?.earned_at ?? null,
   }));
-  res.json({ ok: true, user, stats, badges });
+  res.json({ ok: true, user, stats, badges, booking_stats: bookingStats });
 });
 
+
+// GET /api/bookings - список бронирований
+router.get("/bookings", authMiddleware(false), (req: AuthedRequest, res) => {
+  const bookings = BookingModel.list(req.userId!);
+  const stats = BookingModel.stats(req.userId!);
+  res.json({ ok: true, bookings, stats });
+});
+
+// POST /api/bookings/create - создать бронирование
+router.post("/bookings/create", authMiddleware(false), (req: AuthedRequest, res) => {
+  const { event_id, ticket_count } = req.body || {};
+  if (!event_id) return res.status(400).json({ error: "event_id required" });
+  
+  const event = EventModel.byId(Number(event_id));
+  if (!event) return res.status(404).json({ error: "event not found" });
+  
+  const tickets = Number(ticket_count) || 1;
+  const totalPrice = (event.price_min || 0) * tickets;
+  
+  const booking = BookingModel.create(req.userId!, Number(event_id), tickets, totalPrice, event.external_url);
+  
+  // Даём значок за первое бронирование
+  const stats = BookingModel.stats(req.userId!);
+  if (stats.totalBookings === 1) {
+    BadgeModel.earn(req.userId!, "first_booking");
+  }
+  
+  res.json({ ok: true, booking });
+});
+
+// POST /api/bookings/cancel - отменить бронирование
+router.post("/bookings/cancel", authMiddleware(false), (req: AuthedRequest, res) => {
+  const { booking_id } = req.body || {};
+  if (!booking_id) return res.status(400).json({ error: "booking_id required" });
+  
+  BookingModel.cancel(req.userId!, Number(booking_id));
+  res.json({ ok: true });
+});
+
+// POST /api/bookings/use - отметить использование
+router.post("/bookings/use", authMiddleware(false), (req: AuthedRequest, res) => {
+  const { booking_id } = req.body || {};
+  if (!booking_id) return res.status(400).json({ error: "booking_id required" });
+  
+  BookingModel.markUsed(req.userId!, Number(booking_id));
+  
+  // Обновляем streak и значки
+  const { streak } = UserModel.updateStreak(req.userId!);
+  const earned = recalcBadges(req.userId!, streak);
+  
+  res.json({ ok: true, streak, earned });
+});
 export default router;

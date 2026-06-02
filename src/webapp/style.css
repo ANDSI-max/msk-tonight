@@ -385,3 +385,119 @@ html, body {
   font-size: 48px;
   margin-bottom: 12px;
 }
+
+
+/* Бронирования */
+.booking-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 15px;
+  background: var(--tg-theme-secondary-bg-color);
+  border-radius: 12px;
+  margin: 10px 15px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--tg-theme-button-color);
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color);
+  margin-top: 4px;
+}
+
+.booking-item {
+  background: var(--tg-theme-bg-color);
+  border-radius: 12px;
+  margin: 10px 15px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.booking-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.booking-content {
+  padding: 15px;
+}
+
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.booking-ref {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color);
+  font-family: monospace;
+}
+
+.booking-status {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.booking-status.status-confirmed {
+  background: #4CAF50;
+  color: white;
+}
+
+.booking-status.status-used {
+  background: #2196F3;
+  color: white;
+}
+
+.booking-status.status-cancelled {
+  background: #f44336;
+  color: white;
+}
+
+.booking-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.booking-meta {
+  font-size: 13px;
+  color: var(--tg-theme-hint-color);
+  margin-bottom: 12px;
+}
+
+.booking-details {
+  display: flex;
+  gap: 15px;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.booking-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.booking-actions .btn {
+  flex: 1;
+  min-width: 100px;
+  font-size: 13px;
+  padding: 10px;
+}
+
+.booking-item.status-cancelled {
+  opacity: 0.6;
+}
