@@ -108,7 +108,7 @@ router.get("/plan", authMiddleware(false), (req: AuthedRequest, res) => {
   // Подсчёт "друзья идут"
   const withFriends = items.map((it) => ({
     ...it,
-    friends_count: PlanModel.attendedFriendsCount(it.id),
+    friends_count: PlanModel.attendedFriendsCount(it.event_id),
   }));
   res.json({ ok: true, plan: withFriends });
 });
