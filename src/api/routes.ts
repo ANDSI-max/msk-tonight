@@ -157,7 +157,7 @@ router.post("/bookings/create", authMiddleware(false), (req: AuthedRequest, res)
   const tickets = Number(ticket_count) || 1;
   const totalPrice = (event.price_min || 0) * tickets;
   
-  const booking = BookingModel.create(req.userId!, Number(event_id), tickets, totalPrice, event.external_url);
+  const booking = BookingModel.create(req.userId!, Number(event_id), tickets, totalPrice, event.external_url || undefined);
   
   // Даём значок за первое бронирование
   const stats = BookingModel.stats(req.userId!);
