@@ -18,7 +18,7 @@ function applyTheme() {
 applyTheme();
 
 // API helpers
-const API_BASE = "";
+const API_BASE = window.location.origin;
 const HEADERS = { "Content-Type": "application/json" };
 
 async function apiGet(path) {
