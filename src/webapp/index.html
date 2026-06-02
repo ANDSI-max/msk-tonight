@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>МСК.Tonight</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- Навигация -->
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-tab="today">
+        <span class="nav-icon">🌃</span>
+        <span class="nav-label">Сегодня</span>
+      </button>
+      <button class="nav-btn" data-tab="plan">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label">Мой план</span>
+      </button>
+      <button class="nav-btn" data-tab="profile">
+        <span class="nav-icon">👤</span>
+        <span class="nav-label">Профиль</span>
+      </button>
+    </nav>
+
+    <!-- Экран: Сегодня -->
+    <section id="tab-today" class="tab active">
+      <div class="filters">
+        <select id="filter-category">
+          <option value="">Все категории</option>
+          <option value="concert">Концерты</option>
+          <option value="theater">Театр</option>
+          <option value="bar">Бары</option>
+          <option value="club">Клубы</option>
+          <option value="exhibition">Выставки</option>
+        </select>
+        <select id="filter-district">
+          <option value="">Все районы</option>
+          <option value="Тверской">Тверской</option>
+          <option value="Пресненский">Пресненский</option>
+          <option value="Басманный">Басманный</option>
+          <option value="Якиманка">Якиманка</option>
+          <option value="Хамовники">Хамовники</option>
+          <option value="Замоскворечье">Замоскворечье</option>
+        </select>
+      </div>
+
+      <div class="cards-container" id="events-container">
+        <div class="loading">Загружаю события...</div>
+      </div>
+    </section>
+
+    <!-- Экран: План -->
+    <section id="tab-plan" class="tab">
+      <h2 class="section-title">Мой план на сегодня</h2>
+      <div id="plan-container" class="plan-list">
+        <div class="loading">Загружаю план...</div>
+      </div>
+    </section>
+
+    <!-- Экран: Профиль -->
+    <section id="tab-profile" class="tab">
+      <div class="profile-header">
+        <div class="streak-badge">
+          <span class="streak-emoji">🔥</span>
+          <span class="streak-count" id="streak-count">0</span>
+          <span class="streak-label">дней подряд</span>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-value" id="stat-planned">0</span>
+            <span class="stat-label">В плане</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="stat-attended">0</span>
+            <span class="stat-label">Посещено</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="stat-likes">0</span>
+            <span class="stat-label">Лайков</span>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="badges-title">Значки</h3>
+      <div class="badges-grid" id="badges-container">
+        <div class="loading">Загружаю...</div>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
