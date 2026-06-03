@@ -73,8 +73,23 @@ db.exec(`
   FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
 );
 
+
+  -- РњРёРіСЂР°С†РёСЏ: РґРѕР±Р°РІР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ events (РµСЃР»Рё РЅРµС‚)
+  ALTER TABLE events ADD COLUMN lat REAL;
+  ALTER TABLE events ADD COLUMN lng REAL;
+
 CREATE INDEX IF NOT EXISTS idx_bookings_user ON bookings(user_id);
+
+  -- РњРёРіСЂР°С†РёСЏ: РґРѕР±Р°РІР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ events (РµСЃР»Рё РЅРµС‚)
+  ALTER TABLE events ADD COLUMN lat REAL;
+  ALTER TABLE events ADD COLUMN lng REAL;
+
 CREATE INDEX IF NOT EXISTS idx_bookings_event ON bookings(event_id);
+
+  -- РњРёРіСЂР°С†РёСЏ: РґРѕР±Р°РІР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ events (РµСЃР»Рё РЅРµС‚)
+  ALTER TABLE events ADD COLUMN lat REAL;
+  ALTER TABLE events ADD COLUMN lng REAL;
+
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
 
 CREATE TABLE IF NOT EXISTS user_badges (
@@ -86,10 +101,30 @@ CREATE TABLE IF NOT EXISTS user_badges (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   );
 
-  CREATE INDEX IF NOT EXISTS idx_events_category ON events(category);
-  CREATE INDEX IF NOT EXISTS idx_events_start ON events(start_time);
-  CREATE INDEX IF NOT EXISTS idx_plans_user ON user_plans(user_id);
-  CREATE INDEX IF NOT EXISTS idx_swipes_user ON swipes(user_id);
+  
+  -- РњРёРіСЂР°С†РёСЏ: РґРѕР±Р°РІР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ events (РµСЃР»Рё РЅРµС‚)
+  ALTER TABLE events ADD COLUMN lat REAL;
+  ALTER TABLE events ADD COLUMN lng REAL;
+
+CREATE INDEX IF NOT EXISTS idx_events_category ON events(category);
+  
+  -- РњРёРіСЂР°С†РёСЏ: РґРѕР±Р°РІР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ events (РµСЃР»Рё РЅРµС‚)
+  ALTER TABLE events ADD COLUMN lat REAL;
+  ALTER TABLE events ADD COLUMN lng REAL;
+
+CREATE INDEX IF NOT EXISTS idx_events_start ON events(start_time);
+  
+  -- РњРёРіСЂР°С†РёСЏ: РґРѕР±Р°РІР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ events (РµСЃР»Рё РЅРµС‚)
+  ALTER TABLE events ADD COLUMN lat REAL;
+  ALTER TABLE events ADD COLUMN lng REAL;
+
+CREATE INDEX IF NOT EXISTS idx_plans_user ON user_plans(user_id);
+  
+  -- РњРёРіСЂР°С†РёСЏ: РґРѕР±Р°РІР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ events (РµСЃР»Рё РЅРµС‚)
+  ALTER TABLE events ADD COLUMN lat REAL;
+  ALTER TABLE events ADD COLUMN lng REAL;
+
+CREATE INDEX IF NOT EXISTS idx_swipes_user ON swipes(user_id);
 `);
 
 export default db;
