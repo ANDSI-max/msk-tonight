@@ -3,127 +3,127 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>МСК.Tonight</title>
+  <title>РњРЎРљ.Tonight</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
   <div id="app">
-    <!-- Навигация -->
+    <!-- РќР°РІРёРіР°С†РёСЏ -->
     <nav class="bottom-nav">
       <button class="nav-btn active" data-tab="today">
-        <span class="nav-icon">🌃</span>
-        <span class="nav-label">Сегодня</span>
+        <span class="nav-icon">рџЊѓ</span>
+        <span class="nav-label">РЎРµРіРѕРґРЅСЏ</span>
       </button>
       <button class="nav-btn" data-tab="plan">
-        <span class="nav-icon">📅</span>
-        <span class="nav-label">Мой план</span>
+        <span class="nav-icon">рџ“…</span>
+        <span class="nav-label">РњРѕР№ РїР»Р°РЅ</span>
       </button>
       <button class="nav-btn" data-tab="bookings">
-        <span class="nav-icon">🎫</span>
-        <span class="nav-label">Билеты</span>
+        <span class="nav-icon">рџЋ«</span>
+        <span class="nav-label">Р‘РёР»РµС‚С‹</span>
       </button>
       <button class="nav-btn" data-tab="map">
-        <span class="nav-icon">🗺️</span>
-        <span class="nav-label">Карта</span>
+        <span class="nav-icon">рџ—єпёЏ</span>
+        <span class="nav-label">РљР°СЂС‚Р°</span>
       </button>
       <button class="nav-btn" data-tab="profile">
-        <span class="nav-icon">👤</span>
-        <span class="nav-label">Профиль</span>
+        <span class="nav-icon">рџ‘¤</span>
+        <span class="nav-label">РџСЂРѕС„РёР»СЊ</span>
       </button>
     </nav>
 
-    <!-- Экран: Сегодня -->
+    <!-- Р­РєСЂР°РЅ: РЎРµРіРѕРґРЅСЏ -->
     <section id="tab-today" class="tab active">
       <div class="filters">
         <select id="filter-category">
-          <option value="">Все категории</option>
-          <option value="concert">Концерты</option>
-          <option value="theater">Театр</option>
-          <option value="bar">Бары</option>
-          <option value="club">Клубы</option>
-          <option value="exhibition">Выставки</option>
+          <option value="">Р’СЃРµ РєР°С‚РµРіРѕСЂРёРё</option>
+          <option value="concert">РљРѕРЅС†РµСЂС‚С‹</option>
+          <option value="theater">РўРµР°С‚СЂ</option>
+          <option value="bar">Р‘Р°СЂС‹</option>
+          <option value="club">РљР»СѓР±С‹</option>
+          <option value="exhibition">Р’С‹СЃС‚Р°РІРєРё</option>
         </select>
         <select id="filter-district">
-          <option value="">Все районы</option>
-          <option value="Тверской">Тверской</option>
-          <option value="Пресненский">Пресненский</option>
-          <option value="Басманный">Басманный</option>
-          <option value="Якиманка">Якиманка</option>
-          <option value="Хамовники">Хамовники</option>
-          <option value="Замоскворечье">Замоскворечье</option>
+          <option value="">Р’СЃРµ СЂР°Р№РѕРЅС‹</option>
+          <option value="РўРІРµСЂСЃРєРѕР№">РўРІРµСЂСЃРєРѕР№</option>
+          <option value="РџСЂРµСЃРЅРµРЅСЃРєРёР№">РџСЂРµСЃРЅРµРЅСЃРєРёР№</option>
+          <option value="Р‘Р°СЃРјР°РЅРЅС‹Р№">Р‘Р°СЃРјР°РЅРЅС‹Р№</option>
+          <option value="РЇРєРёРјР°РЅРєР°">РЇРєРёРјР°РЅРєР°</option>
+          <option value="РҐР°РјРѕРІРЅРёРєРё">РҐР°РјРѕРІРЅРёРєРё</option>
+          <option value="Р—Р°РјРѕСЃРєРІРѕСЂРµС‡СЊРµ">Р—Р°РјРѕСЃРєРІРѕСЂРµС‡СЊРµ</option>
         </select>
       </div>
 
       <div class="cards-container" id="events-container">
-        <div class="loading">Загружаю события...</div>
+        <div class="loading">Р—Р°РіСЂСѓР¶Р°СЋ СЃРѕР±С‹С‚РёСЏ...</div>
       </div>
     </section>
 
-    <!-- Экран: План -->
+    <!-- Р­РєСЂР°РЅ: РџР»Р°РЅ -->
     <section id="tab-plan" class="tab">
-      <h2 class="section-title">Мой план на сегодня</h2>
+      <h2 class="section-title">РњРѕР№ РїР»Р°РЅ РЅР° СЃРµРіРѕРґРЅСЏ</h2>
       <div id="plan-container" class="plan-list">
-        <div class="loading">Загружаю план...</div>
+        <div class="loading">Р—Р°РіСЂСѓР¶Р°СЋ РїР»Р°РЅ...</div>
       </div>
     </section>
 
-    <!-- Экран: Билеты -->
+    <!-- Р­РєСЂР°РЅ: Р‘РёР»РµС‚С‹ -->
     <section id="tab-bookings" class="tab">
       <div id="booking-stats"></div>
       <div id="bookings-container" class="plan-list">
-        <div class="loading">Загружаю билеты...</div>
+        <div class="loading">Р—Р°РіСЂСѓР¶Р°СЋ Р±РёР»РµС‚С‹...</div>
       </div>
     </section>
 
-    <!-- Экран: Карта -->
+    <!-- Р­РєСЂР°РЅ: РљР°СЂС‚Р° -->
     <section id="tab-map" class="tab">
       <div class="filters" style="padding: 10px 15px;">
         <select id="filter-map-date">
-          <option value="today">Сегодня</option>
-          <option value="tomorrow">Завтра</option>
-          <option value="weekend">Выходные</option>
+          <option value="today">РЎРµРіРѕРґРЅСЏ</option>
+          <option value="tomorrow">Р—Р°РІС‚СЂР°</option>
+          <option value="weekend">Р’С‹С…РѕРґРЅС‹Рµ</option>
         </select>
       </div>
       <div id="map-container" style="width: 100%; height: calc(100vh - 120px); background: #e0e0e0; position: relative;">
-        <div class="loading">Загружаю карту...</div>
+        <div class="loading">Р—Р°РіСЂСѓР¶Р°СЋ РєР°СЂС‚Сѓ...</div>
       </div>
     </section>
 
-    <!-- Экран: Профиль -->
+    <!-- Р­РєСЂР°РЅ: РџСЂРѕС„РёР»СЊ -->
     <section id="tab-profile" class="tab">
       <div class="profile-header">
         <div class="streak-badge">
-          <span class="streak-emoji">🔥</span>
+          <span class="streak-emoji">рџ”Ґ</span>
           <span class="streak-count" id="streak-count">0</span>
-          <span class="streak-label">дней подряд</span>
+          <span class="streak-label">РґРЅРµР№ РїРѕРґСЂСЏРґ</span>
         </div>
         <div class="stats-grid">
           <div class="stat-item">
             <span class="stat-value" id="stat-planned">0</span>
-            <span class="stat-label">В плане</span>
+            <span class="stat-label">Р’ РїР»Р°РЅРµ</span>
           </div>
           <div class="stat-item">
             <span class="stat-value" id="stat-attended">0</span>
-            <span class="stat-label">Посещено</span>
+            <span class="stat-label">РџРѕСЃРµС‰РµРЅРѕ</span>
           </div>
           <div class="stat-item">
             <span class="stat-value" id="stat-likes">0</span>
-            <span class="stat-label">Лайков</span>
+            <span class="stat-label">Р›Р°Р№РєРѕРІ</span>
           </div>
         </div>
       </div>
 
-      <h3 class="badges-title">Значки</h3>
+      <h3 class="badges-title">Р—РЅР°С‡РєРё</h3>
       <div class="badges-grid" id="badges-container">
-        <div class="loading">Загружаю...</div>
+        <div class="loading">Р—Р°РіСЂСѓР¶Р°СЋ...</div>
       </div>
     </section>
   </div>
 
     <!-- Debug logger -->
   <div id="debug-log" style="display:none;position:fixed;bottom:60px;left:10px;right:10px;max-height:200px;overflow-y:auto;background:rgba(0,0,0,0.95);color:#0f0;padding:10px;border-radius:8px;font-size:11px;z-index:9999;font-family:monospace;"></div>
-  <button id="debug-btn" style="position:fixed;bottom:10px;left:10px;background:#333;color:#fff;border:2px solid #fff;border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer;z-index:10000">🔧</button>
+  <button id="debug-btn" style="position:fixed;bottom:10px;left:10px;background:#333;color:#fff;border:2px solid #fff;border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer;z-index:10000">рџ”§</button>
   <script>
   (function(){
     var logEl=document.getElementById('debug-log');
@@ -138,8 +138,8 @@
     }
     var oldLog=console.log;
     console.log=function(){addLog(Array.prototype.join.call(arguments,' '));oldLog.apply(console,arguments);};
-    window.onerror=function(m,s,l,c){addLog('❌ '+m+' @'+s+':'+l);};
-    addLog('✅ App loaded');
+    window.onerror=function(m,s,l,c){addLog('вќЊ '+m+' @'+s+':'+l);};
+    addLog('вњ… App loaded');
   })();
   </script>
   <script src="app.js"></script>
