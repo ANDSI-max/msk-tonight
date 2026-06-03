@@ -1,4 +1,4 @@
-export type MockCategory =
+﻿export type MockCategory =
   | "concert"
   | "theater"
   | "bar"
@@ -12,17 +12,17 @@ export interface MockEvent {
   venue_name: string;
   address: string;
   district: string;
-  start_time: string; // ISO 8601 дата начала
+  start_time: string; // ISO 8601 РґР°С‚Р° РЅР°С‡Р°Р»Р°
   duration_hours: number;
   price_min: number;
   price_max: number;
   image_url: string;
   external_url: string;
-  lat: number; // Широта
-  lng: number; // Долгота
+  lat: number; // РЁРёСЂРѕС‚Р°
+  lng: number; // Р”РѕР»РіРѕС‚Р°
 }
 
-// Генерируем дату на сегодня
+// Р“РµРЅРµСЂРёСЂСѓРµРј РґР°С‚Сѓ РЅР° СЃРµРіРѕРґРЅСЏ
 const today = new Date();
 today.setHours(19, 0, 0, 0);
 
@@ -32,18 +32,18 @@ const inHours = (h: number) => {
   return d.toISOString();
 };
 
-// Картинки с Unsplash
-const img = (q: string) => `https://images.unsplash.com/photo-${q}?w=800&h=600&fit=crop`;
+// РљР°СЂС‚РёРЅРєРё СЃ Unsplash
+const img = (cat: string) => `https://placehold.co/800x600/${cat === "concert" ? "ff6b6b" : cat === "theater" ? "4ecdc4" : cat === "bar" ? "ffe66d" : cat === "club" ? "1a535c" : "f7fff7"}/ffffff?text=EVENT`;
 
 export const MOCK_EVENTS: MockEvent[] = [
-  // Концерты
+  // РљРѕРЅС†РµСЂС‚С‹
   { 
-    title: " Mumiy Troll в Crocus City Hall", 
-    description: "Большой сольный концерт легендарной группы", 
+    title: " Mumiy Troll РІ Crocus City Hall", 
+    description: "Р‘РѕР»СЊС€РѕР№ СЃРѕР»СЊРЅС‹Р№ РєРѕРЅС†РµСЂС‚ Р»РµРіРµРЅРґР°СЂРЅРѕР№ РіСЂСѓРїРїС‹", 
     category: "concert", 
     venue_name: "Crocus City Hall", 
-    address: "65-66 км МКАД, Красногорск", 
-    district: "Красногорск", 
+    address: "65-66 РєРј РњРљРђР”, РљСЂР°СЃРЅРѕРіРѕСЂСЃРє", 
+    district: "РљСЂР°СЃРЅРѕРіРѕСЂСЃРє", 
     start_time: inHours(0), 
     duration_hours: 3, 
     price_min: 3500, 
@@ -54,12 +54,12 @@ export const MOCK_EVENTS: MockEvent[] = [
     lng: 37.4028
   },
   { 
-    title: "Джаз-сет в 16 тонн", 
-    description: "Уютный вечер живого джаза", 
+    title: "Р”Р¶Р°Р·-СЃРµС‚ РІ 16 С‚РѕРЅРЅ", 
+    description: "РЈСЋС‚РЅС‹Р№ РІРµС‡РµСЂ Р¶РёРІРѕРіРѕ РґР¶Р°Р·Р°", 
     category: "concert", 
-    venue_name: "16 тонн", 
-    address: "ул. Пресненский Вал, 6с1", 
-    district: "Пресненский", 
+    venue_name: "16 С‚РѕРЅРЅ", 
+    address: "СѓР». РџСЂРµСЃРЅРµРЅСЃРєРёР№ Р’Р°Р», 6СЃ1", 
+    district: "РџСЂРµСЃРЅРµРЅСЃРєРёР№", 
     start_time: inHours(1), 
     duration_hours: 3, 
     price_min: 1500, 
@@ -70,12 +70,12 @@ export const MOCK_EVENTS: MockEvent[] = [
     lng: 37.5672
   },
   { 
-    title: "Indie-вечер в А2", 
-    description: "Молодые российские инди-группы", 
+    title: "Indie-РІРµС‡РµСЂ РІ Рђ2", 
+    description: "РњРѕР»РѕРґС‹Рµ СЂРѕСЃСЃРёР№СЃРєРёРµ РёРЅРґРё-РіСЂСѓРїРїС‹", 
     category: "concert", 
-    venue_name: "Клуб А2", 
-    address: "Звенигородское ш., 18/20", 
-    district: "Пресненский", 
+    venue_name: "РљР»СѓР± Рђ2", 
+    address: "Р—РІРµРЅРёРіРѕСЂРѕРґСЃРєРѕРµ С€., 18/20", 
+    district: "РџСЂРµСЃРЅРµРЅСЃРєРёР№", 
     start_time: inHours(2), 
     duration_hours: 4, 
     price_min: 1200, 
@@ -86,12 +86,12 @@ export const MOCK_EVENTS: MockEvent[] = [
     lng: 37.5535
   },
   { 
-    title: "Симфонический оркестр в Зарядье", 
-    description: "Чайковский. Симфония №6", 
+    title: "РЎРёРјС„РѕРЅРёС‡РµСЃРєРёР№ РѕСЂРєРµСЃС‚СЂ РІ Р—Р°СЂСЏРґСЊРµ", 
+    description: "Р§Р°Р№РєРѕРІСЃРєРёР№. РЎРёРјС„РѕРЅРёСЏ в„–6", 
     category: "concert", 
-    venue_name: "Зарядье", 
-    address: "ул. Варварка, 6с1", 
-    district: "Тверской", 
+    venue_name: "Р—Р°СЂСЏРґСЊРµ", 
+    address: "СѓР». Р’Р°СЂРІР°СЂРєР°, 6СЃ1", 
+    district: "РўРІРµСЂСЃРєРѕР№", 
     start_time: inHours(0), 
     duration_hours: 2, 
     price_min: 2500, 
@@ -102,12 +102,12 @@ export const MOCK_EVENTS: MockEvent[] = [
     lng: 37.6281
   },
   { 
-    title: "Electronic Live в Powerhouse", 
-    description: "Электроника, синтвейв, лайв-сет", 
+    title: "Electronic Live РІ Powerhouse", 
+    description: "Р­Р»РµРєС‚СЂРѕРЅРёРєР°, СЃРёРЅС‚РІРµР№РІ, Р»Р°Р№РІ-СЃРµС‚", 
     category: "concert", 
     venue_name: "Powerhouse", 
-    address: "ул. Новодмитровская, 5с2", 
-    district: "Бутырский", 
+    address: "СѓР». РќРѕРІРѕРґРјРёС‚СЂРѕРІСЃРєР°СЏ, 5СЃ2", 
+    district: "Р‘СѓС‚С‹СЂСЃРєРёР№", 
     start_time: inHours(3), 
     duration_hours: 4, 
     price_min: 1500, 
@@ -118,12 +118,12 @@ export const MOCK_EVENTS: MockEvent[] = [
     lng: 37.6156
   },
   { 
-    title: "Хип-хоп на Adrenaline Stadium", 
-    description: "Большой open air хип-хоп фест", 
+    title: "РҐРёРї-С…РѕРї РЅР° Adrenaline Stadium", 
+    description: "Р‘РѕР»СЊС€РѕР№ open air С…РёРї-С…РѕРї С„РµСЃС‚", 
     category: "concert", 
     venue_name: "Adrenaline Stadium", 
-    address: "Ленинградский пр-т, 80к17", 
-    district: "Аэропорт", 
+    address: "Р›РµРЅРёРЅРіСЂР°РґСЃРєРёР№ РїСЂ-С‚, 80Рє17", 
+    district: "РђСЌСЂРѕРїРѕСЂС‚", 
     start_time: inHours(1), 
     duration_hours: 5, 
     price_min: 2500, 
@@ -134,14 +134,14 @@ export const MOCK_EVENTS: MockEvent[] = [
     lng: 37.5297
   },
 
-  // Театр
+  // РўРµР°С‚СЂ
   { 
-    title: "Гамлет во МХТ им. Чехова", 
-    description: "Классическая постановка с современным акцентом", 
+    title: "Р“Р°РјР»РµС‚ РІРѕ РњРҐРў РёРј. Р§РµС…РѕРІР°", 
+    description: "РљР»Р°СЃСЃРёС‡РµСЃРєР°СЏ РїРѕСЃС‚Р°РЅРѕРІРєР° СЃ СЃРѕРІСЂРµРјРµРЅРЅС‹Рј Р°РєС†РµРЅС‚РѕРј", 
     category: "theater", 
-    venue_name: "МХТ им. Чехова", 
-    address: "Камергерский пер., 3", 
-    district: "Тверской", 
+    venue_name: "РњРҐРў РёРј. Р§РµС…РѕРІР°", 
+    address: "РљР°РјРµСЂРіРµСЂСЃРєРёР№ РїРµСЂ., 3", 
+    district: "РўРІРµСЂСЃРєРѕР№", 
     start_time: inHours(0), 
     duration_hours: 3, 
     price_min: 1500, 
@@ -152,12 +152,12 @@ export const MOCK_EVENTS: MockEvent[] = [
     lng: 37.6136
   },
   { 
-    title: "Чайка в Современнике", 
-    description: "Чехов в новой режиссёрской версии", 
+    title: "Р§Р°Р№РєР° РІ РЎРѕРІСЂРµРјРµРЅРЅРёРєРµ", 
+    description: "Р§РµС…РѕРІ РІ РЅРѕРІРѕР№ СЂРµР¶РёСЃСЃС‘СЂСЃРєРѕР№ РІРµСЂСЃРёРё", 
     category: "theater", 
-    venue_name: "Современник", 
-    address: "Чистопрудный бульвар, 19А", 
-    district: "Басманный", 
+    venue_name: "РЎРѕРІСЂРµРјРµРЅРЅРёРє", 
+    address: "Р§РёСЃС‚РѕРїСЂСѓРґРЅС‹Р№ Р±СѓР»СЊРІР°СЂ, 19Рђ", 
+    district: "Р‘Р°СЃРјР°РЅРЅС‹Р№", 
     start_time: inHours(0), 
     duration_hours: 3, 
     price_min: 1200, 
@@ -168,12 +168,12 @@ export const MOCK_EVENTS: MockEvent[] = [
     lng: 37.6503
   },
   { 
-    title: "Мастер и Маргарита на Таганке", 
-    description: "Знаменитая постановка по Булгакову", 
+    title: "РњР°СЃС‚РµСЂ Рё РњР°СЂРіР°СЂРёС‚Р° РЅР° РўР°РіР°РЅРєРµ", 
+    description: "Р—РЅР°РјРµРЅРёС‚Р°СЏ РїРѕСЃС‚Р°РЅРѕРІРєР° РїРѕ Р‘СѓР»РіР°РєРѕРІСѓ", 
     category: "theater", 
-    venue_name: "Театр на Таганке", 
-    address: "ул. Земляной Вал, 76/21", 
-    district: "Таганский", 
+    venue_name: "РўРµР°С‚СЂ РЅР° РўР°РіР°РЅРєРµ", 
+    address: "СѓР». Р—РµРјР»СЏРЅРѕР№ Р’Р°Р», 76/21", 
+    district: "РўР°РіР°РЅСЃРєРёР№", 
     start_time: inHours(0), 
     duration_hours: 3, 
     price_min: 1500, 
@@ -184,12 +184,12 @@ export const MOCK_EVENTS: MockEvent[] = [
     lng: 37.6515
   },
   { 
-    title: "Балет Лебединое озеро в Большом", 
-    description: "Главная сцена страны", 
+    title: "Р‘Р°Р»РµС‚ Р›РµР±РµРґРёРЅРѕРµ РѕР·РµСЂРѕ РІ Р‘РѕР»СЊС€РѕРј", 
+    description: "Р“Р»Р°РІРЅР°СЏ СЃС†РµРЅР° СЃС‚СЂР°РЅС‹", 
     category: "theater", 
-    venue_name: "Большой театр", 
-    address: "Театральная пл., 1", 
-    district: "Тверской", 
+    venue_name: "Р‘РѕР»СЊС€РѕР№ С‚РµР°С‚СЂ", 
+    address: "РўРµР°С‚СЂР°Р»СЊРЅР°СЏ РїР»., 1", 
+    district: "РўРІРµСЂСЃРєРѕР№", 
     start_time: inHours(0), 
     duration_hours: 3, 
     price_min: 3500, 
@@ -200,14 +200,14 @@ export const MOCK_EVENTS: MockEvent[] = [
     lng: 37.6178
   },
 
-  // Бары
+  // Р‘Р°СЂС‹
   { 
-    title: "Коктейльная вечеринка в Delicatessen", 
-    description: "Авторские коктейли от лучших барменов", 
+    title: "РљРѕРєС‚РµР№Р»СЊРЅР°СЏ РІРµС‡РµСЂРёРЅРєР° РІ Delicatessen", 
+    description: "РђРІС‚РѕСЂСЃРєРёРµ РєРѕРєС‚РµР№Р»Рё РѕС‚ Р»СѓС‡С€РёС… Р±Р°СЂРјРµРЅРѕРІ", 
     category: "bar", 
     venue_name: "Delicatessen", 
-    address: "ул. Олимпийский проспект, 5с3", 
-    district: "Мещанский", 
+    address: "СѓР». РћР»РёРјРїРёР№СЃРєРёР№ РїСЂРѕСЃРїРµРєС‚, 5СЃ3", 
+    district: "РњРµС‰Р°РЅСЃРєРёР№", 
     start_time: inHours(2), 
     duration_hours: 4, 
     price_min: 1000, 
@@ -218,12 +218,12 @@ export const MOCK_EVENTS: MockEvent[] = [
     lng: 37.6247
   },
   { 
-    title: "Виски-дегустация в Simple Wine Bar", 
-    description: "Дегустация редких шотландских виски", 
+    title: "Р’РёСЃРєРё-РґРµРіСѓСЃС‚Р°С†РёСЏ РІ Simple Wine Bar", 
+    description: "Р”РµРіСѓСЃС‚Р°С†РёСЏ СЂРµРґРєРёС… С€РѕС‚Р»Р°РЅРґСЃРєРёС… РІРёСЃРєРё", 
     category: "bar", 
     venue_name: "Simple Wine Bar", 
-    address: "ул. Рождественка, 12", 
-    district: "Мещанский", 
+    address: "СѓР». Р РѕР¶РґРµСЃС‚РІРµРЅРєР°, 12", 
+    district: "РњРµС‰Р°РЅСЃРєРёР№", 
     start_time: inHours(1), 
     duration_hours: 2, 
     price_min: 2000, 
@@ -234,14 +234,14 @@ export const MOCK_EVENTS: MockEvent[] = [
     lng: 37.6253
   },
 
-  // Клубы
+  // РљР»СѓР±С‹
   { 
-    title: "Techno Night в Mutabor", 
-    description: "Лучшие техно-диджеи Москвы", 
+    title: "Techno Night РІ Mutabor", 
+    description: "Р›СѓС‡С€РёРµ С‚РµС…РЅРѕ-РґРёРґР¶РµРё РњРѕСЃРєРІС‹", 
     category: "club", 
     venue_name: "Mutabor", 
-    address: "ул. Авиамоторная, 47с3", 
-    district: "Лефортово", 
+    address: "СѓР». РђРІРёР°РјРѕС‚РѕСЂРЅР°СЏ, 47СЃ3", 
+    district: "Р›РµС„РѕСЂС‚РѕРІРѕ", 
     start_time: inHours(4), 
     duration_hours: 6, 
     price_min: 1000, 
@@ -252,12 +252,12 @@ export const MOCK_EVENTS: MockEvent[] = [
     lng: 37.7028
   },
   { 
-    title: "House Party в Gazgolder", 
-    description: "Хаус музыка и танцы до утра", 
+    title: "House Party РІ Gazgolder", 
+    description: "РҐР°СѓСЃ РјСѓР·С‹РєР° Рё С‚Р°РЅС†С‹ РґРѕ СѓС‚СЂР°", 
     category: "club", 
     venue_name: "Gazgolder", 
-    address: "ул. Пятницкая, 53", 
-    district: "Замоскворечье", 
+    address: "СѓР». РџСЏС‚РЅРёС†РєР°СЏ, 53", 
+    district: "Р—Р°РјРѕСЃРєРІРѕСЂРµС‡СЊРµ", 
     start_time: inHours(3), 
     duration_hours: 5, 
     price_min: 800, 
@@ -268,14 +268,14 @@ export const MOCK_EVENTS: MockEvent[] = [
     lng: 37.6303
   },
 
-  // Выставки
+  // Р’С‹СЃС‚Р°РІРєРё
   { 
-    title: "Ван Гог. Ожившие полотна", 
-    description: "Иммерсивная выставка", 
+    title: "Р’Р°РЅ Р“РѕРі. РћР¶РёРІС€РёРµ РїРѕР»РѕС‚РЅР°", 
+    description: "РРјРјРµСЂСЃРёРІРЅР°СЏ РІС‹СЃС‚Р°РІРєР°", 
     category: "exhibition", 
-    venue_name: "Арт-пространство", 
-    address: "ул. Пресненская наб., 2", 
-    district: "Пресненский", 
+    venue_name: "РђСЂС‚-РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ", 
+    address: "СѓР». РџСЂРµСЃРЅРµРЅСЃРєР°СЏ РЅР°Р±., 2", 
+    district: "РџСЂРµСЃРЅРµРЅСЃРєРёР№", 
     start_time: inHours(-2), 
     duration_hours: 4, 
     price_min: 800, 
@@ -286,12 +286,12 @@ export const MOCK_EVENTS: MockEvent[] = [
     lng: 37.5394
   },
   { 
-    title: "Сокровища Египта в ГМИИ", 
-    description: "Уникальная коллекция артефактов", 
+    title: "РЎРѕРєСЂРѕРІРёС‰Р° Р•РіРёРїС‚Р° РІ Р“РњРР", 
+    description: "РЈРЅРёРєР°Р»СЊРЅР°СЏ РєРѕР»Р»РµРєС†РёСЏ Р°СЂС‚РµС„Р°РєС‚РѕРІ", 
     category: "exhibition", 
-    venue_name: "ГМИИ им. Пушкина", 
-    address: "ул. Волхонка, 12", 
-    district: "Хамовники", 
+    venue_name: "Р“РњРР РёРј. РџСѓС€РєРёРЅР°", 
+    address: "СѓР». Р’РѕР»С…РѕРЅРєР°, 12", 
+    district: "РҐР°РјРѕРІРЅРёРєРё", 
     start_time: inHours(-3), 
     duration_hours: 3, 
     price_min: 600, 
