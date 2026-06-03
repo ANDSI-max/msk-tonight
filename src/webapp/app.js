@@ -5,13 +5,25 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
+// Применяем тему Telegram
+function applyTheme() {
+  const root = document.documentElement;
+  const params = tg.themeParams;
+  if (params.bgColor) root.style.setProperty("--tg-theme-bg-color", params.bgColor);
+  if (params.textColor) root.style.setProperty("--tg-theme-text-color", params.textColor);
+  if (params.hintColor) root.style.setProperty("--tg-theme-hint-color", params.hintColor);
+  if (params.linkColor) root.style.setProperty("--tg-theme-link-color", params.linkColor);
+  if (params.buttonColor) root.style.setProperty("--tg-theme-button-color", params.buttonColor);
+  if (params.buttonTextColor) root.style.setProperty("--tg-theme-button-text-color", params.buttonTextColor);
+  if (params.secondaryBgColor) root.style.setProperty("--tg-theme-secondary-bg-color", params.secondaryBgColor);
+}
+
 // Ждём загрузки DOM перед инициализацией
 document.addEventListener('DOMContentLoaded', initApp);
 
 function initApp() {
-  // Применяем тему Telegram
   applyTheme();
-
+  
   // Состояние
   let events = [];
   let plan = [];
