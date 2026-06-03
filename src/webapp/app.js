@@ -1,3 +1,5 @@
+function log(msg) { console.log(msg); }
+
 // Инициализация Telegram WebApp
 const tg = window.Telegram.WebApp;
 tg.ready();
