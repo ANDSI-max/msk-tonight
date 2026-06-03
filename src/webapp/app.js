@@ -2,6 +2,11 @@
 
 // Инициализация Telegram WebApp
 const tg = window.Telegram.WebApp;
+
+function getInitData() {
+  if (tg.initData) return tg.initData;
+  return null;
+}
 tg.ready();
 tg.expand();
 
@@ -110,7 +115,10 @@ function initApp() {
   // API helpers
   async function apiGet(path) {
     try {
-      const res = await fetch(API_BASE + path, { headers: HEADERS });
+      const headers = { ...HEADERS };
+      const initData = getInitData();
+      if (initData) headers['X-Telegram-Init-Data'] = initData;
+      const res = await fetch(API_BASE + path, { headers });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       console.log("API GET", path, "=>", data);
@@ -125,7 +133,12 @@ function initApp() {
     try {
       const res = await fetch(API_BASE + path, {
         method: "POST",
-        headers: HEADERS,
+        headers: (function() {
+        const h = { ...HEADERS };
+        const initData = getInitData();
+        if (initData) h['X-Telegram-Init-Data'] = initData;
+        return h;
+      })(),
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -660,6 +673,35 @@ function initApp() {
       badgesContainer.innerHTML = '<div class="empty-state">Пока нет значков</div>';
       return;
     }
+
+  // Клики на значки профиля
+  const statPlanned = document.getElementById("stat-planned");
+  if (statPlanned) {
+    statPlanned.parentElement.style.cursor = "pointer";
+    statPlanned.parentElement.addEventListener("click", () => {
+      switchTab("plan");
+    });
+  }
+  
+  const statBookings = document.getElementById("stat-bookings");
+  if (statBookings) {
+    statBookings.parentElement.style.cursor = "pointer";
+    statBookings.parentElement.addEventListener("click", () => {
+      switchTab("bookings");
+    });
+  }
+
+  function switchTab(tabName) {
+    navBtns.forEach((b) => b.classList.remove("active"));
+    const targetBtn = document.querySelector('.nav-btn[data-tab="' + tabName + '"]');
+    if (targetBtn) targetBtn.classList.add("active");
+    Object.values(tabs).forEach((t) => { if (t) t.classList.remove("active"); });
+    if (tabs[tabName]) tabs[tabName].classList.add("active");
+    if (tabName === "plan") loadPlan();
+    if (tabName === "bookings") loadBookings();
+    if (tabName === "map") loadMap();
+    if (tabName === "profile") loadProfile();
+  }
 
     badgesContainer.innerHTML = profile.badges
       .map(
