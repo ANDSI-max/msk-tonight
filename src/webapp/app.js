@@ -472,9 +472,9 @@ function initApp() {
     } else {
       try {
         await navigator.clipboard.writeText(shareUrl);
-        alert( message: "Ссылка скопирована!", );
+        alert("✅ Ссылка скопирована!");
       } catch (e) {
-        alert( message: shareUrl, );
+        alert("❌ Ошибка: " + shareUrl);
       }
     }
   }
