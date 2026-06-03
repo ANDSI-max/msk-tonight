@@ -103,6 +103,27 @@
     </section>
   </div>
 
-    <script src="app.js"></script>
+    <!-- Debug logger -->
+  <div id="debug-log" style="display:none;position:fixed;bottom:60px;left:10px;right:10px;max-height:200px;overflow-y:auto;background:rgba(0,0,0,0.95);color:#0f0;padding:10px;border-radius:8px;font-size:11px;z-index:9999;font-family:monospace;"></div>
+  <button id="debug-btn" style="position:fixed;bottom:10px;left:10px;background:#333;color:#fff;border:2px solid #fff;border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer;z-index:10000">🔧</button>
+  <script>
+  (function(){
+    var logEl=document.getElementById('debug-log');
+    var btn=document.getElementById('debug-btn');
+    var logs=[];
+    btn.onclick=function(){logEl.style.display=logEl.style.display==='none'?'block':'none';};
+    function addLog(msg){
+      var t=new Date().toLocaleTimeString();
+      logs.push('['+t+'] '+msg);
+      if(logs.length>50)logs.shift();
+      logEl.innerHTML=logs.join('<br>');
+    }
+    var oldLog=console.log;
+    console.log=function(){addLog(Array.prototype.join.call(arguments,' '));oldLog.apply(console,arguments);};
+    window.onerror=function(m,s,l,c){addLog('❌ '+m+' @'+s+':'+l);};
+    addLog('✅ App loaded');
+  })();
+  </script>
+  <script src="app.js"></script>
   </body>
 </html>
