@@ -279,9 +279,14 @@ loadPlan();
 } catch (e) { alert("❌ Ошибка при удалении"); }
 }
 async function bookEvent(eventId) {
-const event = events.find(e => e.id === eventId);
-if (!event) return;
+// Используем state.events вместо events
+const event = state.events.find(e => e.id === eventId);
+if (!event) {
+console.error("Event not found in state");
+return;
+}
 const price = event.price_min || 0;
+// Используем стандартный alert, так как WebApp.showPopup может не поддерживаться
 if (!confirm(`🎫 Бронирование\n\n${event.title}\n\nБилетов: 1\nК оплате: ${price}₽`)) {
 return;
 }
