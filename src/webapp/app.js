@@ -1,11 +1,11 @@
 function log(msg) { console.log(msg); }
 
-// Инициализация Telegram WebApp
+// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Telegram WebApp
 const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
-// Применяем тему Telegram
+// РџСЂРёРјРµРЅСЏРµРј С‚РµРјСѓ Telegram
 function applyTheme() {
   const root = document.documentElement;
   const params = tg.themeParams;
@@ -18,19 +18,19 @@ function applyTheme() {
   if (params.secondaryBgColor) root.style.setProperty("--tg-theme-secondary-bg-color", params.secondaryBgColor);
 }
 
-// Ждём загрузки DOM перед инициализацией
+// Р–РґС‘Рј Р·Р°РіСЂСѓР·РєРё DOM РїРµСЂРµРґ РёРЅРёС†РёР°Р»РёР·Р°С†РёРµР№
 document.addEventListener('DOMContentLoaded', initApp);
 
 function initApp() {
   applyTheme();
   
-  // Состояние
+  // РЎРѕСЃС‚РѕСЏРЅРёРµ
   let events = [];
   let plan = [];
   let profile = null;
   let currentCardIndex = 0;
 
-  // Навигация - с проверкой на null
+  // РќР°РІРёРіР°С†РёСЏ - СЃ РїСЂРѕРІРµСЂРєРѕР№ РЅР° null
   const tabs = {
     today: document.getElementById("tab-today"),
     plan: document.getElementById("tab-plan"),
@@ -61,7 +61,7 @@ function initApp() {
     });
   });
 
-  // Фильтры - с проверкой на null
+  // Р¤РёР»СЊС‚СЂС‹ - СЃ РїСЂРѕРІРµСЂРєРѕР№ РЅР° null
   const filterCategory = document.getElementById("filter-category");
   const filterDistrict = document.getElementById("filter-district");
   if (filterCategory) {
@@ -71,13 +71,13 @@ function initApp() {
     filterDistrict.addEventListener("change", loadEvents);
   }
 
-  // Загрузка событий
+  // Р—Р°РіСЂСѓР·РєР° СЃРѕР±С‹С‚РёР№
   async function loadEvents() {
     console.log("loadEvents called");
     const container = document.getElementById("events-container");
     if (!container) return;
     
-    container.innerHTML = '<div class="loading">Загружаю события...</div>';
+    container.innerHTML = '<div class="loading">Р—Р°РіСЂСѓР¶Р°СЋ СЃРѕР±С‹С‚РёСЏ...</div>';
 
     const params = new URLSearchParams();
     if (filterCategory && filterCategory.value) params.set("category", filterCategory.value);
@@ -96,11 +96,11 @@ function initApp() {
         currentCardIndex = 0;
         renderCards();
       } else {
-        container.innerHTML = '<div class="empty-state">Ошибка загрузки</div>';
+        container.innerHTML = '<div class="empty-state">РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё</div>';
       }
     } catch (e) {
       console.error("Load events error:", e);
-      container.innerHTML = '<div class="empty-state">Нет соединения</div>';
+      container.innerHTML = '<div class="empty-state">РќРµС‚ СЃРѕРµРґРёРЅРµРЅРёСЏ</div>';
     }
   }
 
@@ -115,10 +115,10 @@ function initApp() {
       const res = await fetch(API_BASE + path, { headers });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      log("📦 API GET " + path + " => " + JSON.stringify(data));
+      log("рџ“¦ API GET " + path + " => " + JSON.stringify(data));
       return data;
     } catch (e) {
-      log("❌ API GET error: " + path + " - " + e.message);
+      log("вќЊ API GET error: " + path + " - " + e.message);
       throw e;
     }
   }
@@ -137,24 +137,24 @@ function initApp() {
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      log("📦 API POST " + path + " => " + JSON.stringify(data));
+      log("рџ“¦ API POST " + path + " => " + JSON.stringify(data));
       return data;
     } catch (e) {
-      log("❌ API POST error: " + path + " - " + e.message);
+      log("вќЊ API POST error: " + path + " - " + e.message);
       throw e;
     }
   }
 
   const API_BASE = window.location.origin;
   
-  // Получаем initData из Telegram
+  // РџРѕР»СѓС‡Р°РµРј initData РёР· Telegram
   function getInitData() {
     if (tg.initData) return tg.initData;
     return null;
   }
   const HEADERS = { "Content-Type": "application/json" };
 
-  // Рендер карточек
+  // Р РµРЅРґРµСЂ РєР°СЂС‚РѕС‡РµРє
   function renderCards() {
     const container = document.getElementById("events-container");
     if (!container) return;
@@ -163,8 +163,8 @@ function initApp() {
     if (!events || events.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-emoji">🌃</div>
-          <div>Событий нет</div>
+          <div class="empty-state-emoji">рџЊѓ</div>
+          <div>РЎРѕР±С‹С‚РёР№ РЅРµС‚</div>
         </div>
       `;
       return;
@@ -178,10 +178,10 @@ function initApp() {
     if (events.length > currentCardIndex) {
       const remaining = events.length - currentCardIndex;
       tg.MainButton.show();
-      tg.MainButton.setText(`⏭ Пропустить (${remaining})`);
+      tg.MainButton.setText(`вЏ­ РџСЂРѕРїСѓСЃС‚РёС‚СЊ (${remaining})`);
       tg.MainButton.onClick(onSkip);
     } else {
-      tg.MainButton.setText("✅ Все события просмотрены");
+      tg.MainButton.setText("вњ… Р’СЃРµ СЃРѕР±С‹С‚РёСЏ РїСЂРѕСЃРјРѕС‚СЂРµРЅС‹");
       setTimeout(() => tg.MainButton.hide(), 2000);
     }
   }
@@ -198,15 +198,15 @@ function initApp() {
       <img class="card-image" src="${event.image_url || ''}" alt="${event.title}" onerror="this.src='https://via.placeholder.com/800x600?text=No+Image'" />
       <div class="card-content">
         <div class="card-title">${escapeHtml(event.title)}</div>
-        <div class="card-meta">${category} · ${escapeHtml(event.venue_name || "")}</div>
+        <div class="card-meta">${category} В· ${escapeHtml(event.venue_name || "")}</div>
         <div class="card-meta">${escapeHtml(event.district || "")}</div>
         <div class="card-price">${price}</div>
         <div class="card-desc">${escapeHtml(event.description || "")}</div>
         <div class="card-actions">
-          <button class="btn btn-outline btn-dislike">❌</button>
-          <button class="btn btn-secondary btn-add">В план</button>
-          <button class="btn btn-primary btn-book">🎫 Билет</button>
-          <button class="btn btn-outline btn-like">❤️</button>
+          <button class="btn btn-outline btn-dislike">вќЊ</button>
+          <button class="btn btn-secondary btn-add">Р’ РїР»Р°РЅ</button>
+          <button class="btn btn-primary btn-book">рџЋ« Р‘РёР»РµС‚</button>
+          <button class="btn btn-outline btn-like">вќ¤пёЏ</button>
         </div>
       </div>
     `;
@@ -216,7 +216,7 @@ function initApp() {
     return card;
   }
 
-  // Свайпы
+  // РЎРІР°Р№РїС‹
   let touchStartX = 0;
   let touchCurrentX = 0;
   let isSwiping = false;
@@ -287,10 +287,10 @@ function initApp() {
   if (events.length > currentCardIndex) {
       const remaining = events.length - currentCardIndex;
       tg.MainButton.show();
-      tg.MainButton.setText(`⏭ Пропустить (${remaining})`);
+      tg.MainButton.setText(`вЏ­ РџСЂРѕРїСѓСЃС‚РёС‚СЊ (${remaining})`);
       tg.MainButton.onClick(onSkip);
     } else {
-      tg.MainButton.setText("✅ Все события просмотрены");
+      tg.MainButton.setText("вњ… Р’СЃРµ СЃРѕР±С‹С‚РёСЏ РїСЂРѕСЃРјРѕС‚СЂРµРЅС‹");
       setTimeout(() => tg.MainButton.hide(), 2000);
     }
 
@@ -327,15 +327,15 @@ function initApp() {
   function updateMainButtonText() {
     if (events.length > currentCardIndex) {
       const remaining = events.length - currentCardIndex;
-      tg.MainButton.setText(`⏭ Пропустить (${remaining})`);
+      tg.MainButton.setText(`вЏ­ РџСЂРѕРїСѓСЃС‚РёС‚СЊ (${remaining})`);
     }
   }
 
-  // План
+  // РџР»Р°РЅ
   async function loadPlan() {
     const container = document.getElementById("plan-container");
     if (!container) return;
-    container.innerHTML = '<div class="loading">Загружаю план...</div>';
+    container.innerHTML = '<div class="loading">Р—Р°РіСЂСѓР¶Р°СЋ РїР»Р°РЅ...</div>';
 
     try {
       const data = await apiGet("/api/plan");
@@ -343,11 +343,11 @@ function initApp() {
         plan = data.plan || [];
         renderPlan();
       } else {
-        container.innerHTML = '<div class="empty-state">Ошибка: ' + (data.error || 'Неизвестная') + '</div>';
+        container.innerHTML = '<div class="empty-state">РћС€РёР±РєР°: ' + (data.error || 'РќРµРёР·РІРµСЃС‚РЅР°СЏ') + '</div>';
       }
     } catch (e) {
       console.error("Load plan error:", e);
-      container.innerHTML = '<div class="empty-state">Нет соединения</div>';
+      container.innerHTML = '<div class="empty-state">РќРµС‚ СЃРѕРµРґРёРЅРµРЅРёСЏ</div>';
     }
   }
 
@@ -358,8 +358,8 @@ function initApp() {
     if (!plan || plan.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-emoji">📅</div>
-          <div>Пока нет событий в плане</div>
+          <div class="empty-state-emoji">рџ“…</div>
+          <div>РџРѕРєР° РЅРµС‚ СЃРѕР±С‹С‚РёР№ РІ РїР»Р°РЅРµ</div>
         </div>
       `;
       return;
@@ -373,11 +373,11 @@ function initApp() {
           <img class="plan-item-image" src="${item.image_url || ''}" onerror="this.src='https://via.placeholder.com/800x600?text=No+Image'" />
           <div class="plan-item-content">
             <div class="plan-item-title">${escapeHtml(item.title)}</div>
-            <div class="plan-item-meta">${translateCategory(item.category)} · ${escapeHtml(item.venue_name || "")}</div>
+            <div class="plan-item-meta">${translateCategory(item.category)} В· ${escapeHtml(item.venue_name || "")}</div>
             <div class="plan-item-actions">
-              <button class="btn btn-primary btn-attend" data-event-id="${eventId}">Я был</button>
-              <button class="btn btn-secondary btn-share" data-event-id="${eventId}">Поделиться</button>
-              <button class="btn btn-outline btn-remove" data-event-id="${eventId}">Удалить</button>
+              <button class="btn btn-primary btn-attend" data-event-id="${eventId}">РЇ Р±С‹Р»</button>
+              <button class="btn btn-secondary btn-share" data-event-id="${eventId}">РџРѕРґРµР»РёС‚СЊСЃСЏ</button>
+              <button class="btn btn-outline btn-remove" data-event-id="${eventId}">РЈРґР°Р»РёС‚СЊ</button>
             </div>
           </div>
         </div>
@@ -400,9 +400,9 @@ function initApp() {
     tg.HapticFeedback?.impactOccurred("light");
     try {
       await apiPost("/api/plan/add", { event_id: eventId });
-      tg.showPopup({ message: "Добавлено в план!", buttons: [{ type: "ok" }] });
+      tg.showPopup({ message: "Р”РѕР±Р°РІР»РµРЅРѕ РІ РїР»Р°РЅ!", buttons: [{ type: "ok" }] });
     } catch (e) {
-      tg.showPopup({ message: "Ошибка: " + e.message, buttons: [{ type: "ok" }] });
+      tg.showPopup({ message: "РћС€РёР±РєР°: " + e.message, buttons: [{ type: "ok" }] });
     }
   }
 
@@ -412,14 +412,14 @@ function initApp() {
       const data = await apiPost("/api/plan/attend", { event_id: eventId });
       if (data.ok) {
         tg.showPopup({
-          title: "🔥 Серия!",
-          message: `Твоя серия: ${data.streak} дн.`,
+          title: "рџ”Ґ РЎРµСЂРёСЏ!",
+          message: `РўРІРѕСЏ СЃРµСЂРёСЏ: ${data.streak} РґРЅ.`,
           buttons: [{ type: "ok" }],
         });
         loadPlan();
       }
     } catch (e) {
-      tg.showPopup({ message: "Ошибка: " + e.message, buttons: [{ type: "ok" }] });
+      tg.showPopup({ message: "РћС€РёР±РєР°: " + e.message, buttons: [{ type: "ok" }] });
     }
   }
 
@@ -429,7 +429,7 @@ function initApp() {
       loadPlan();
     } catch (e) {
       console.error("Remove error:", e);
-      tg.showPopup({ message: "Ошибка при удалении", buttons: [{ type: "ok" }] });
+      tg.showPopup({ message: "РћС€РёР±РєР° РїСЂРё СѓРґР°Р»РµРЅРёРё", buttons: [{ type: "ok" }] });
     }
   }
 
@@ -441,22 +441,22 @@ function initApp() {
     const shareUrl = `https://t.me/${botUsername}?start=event_${eventId}`;
 
     if (tg.shareUrl) {
-      tg.shareUrl(shareUrl, `Пойдём на ${event.title}?`);
+      tg.shareUrl(shareUrl, `РџРѕР№РґС‘Рј РЅР° ${event.title}?`);
     } else {
       try {
         await navigator.clipboard.writeText(shareUrl);
-        tg.showPopup({ message: "Ссылка скопирована!", buttons: [{ type: "ok" }] });
+        tg.showPopup({ message: "РЎСЃС‹Р»РєР° СЃРєРѕРїРёСЂРѕРІР°РЅР°!", buttons: [{ type: "ok" }] });
       } catch (e) {
         tg.showPopup({ message: shareUrl, buttons: [{ type: "ok" }] });
       }
     }
   }
 
-  // Бронирования
+  // Р‘СЂРѕРЅРёСЂРѕРІР°РЅРёСЏ
   async function loadBookings() {
     const container = document.getElementById("bookings-container");
     if (!container) return;
-    container.innerHTML = '<div class="loading">Загружаю билеты...</div>';
+    container.innerHTML = '<div class="loading">Р—Р°РіСЂСѓР¶Р°СЋ Р±РёР»РµС‚С‹...</div>';
 
     try {
       const data = await apiGet("/api/bookings");
@@ -464,11 +464,11 @@ function initApp() {
         const { bookings, stats } = data;
         renderBookings(bookings, stats);
       } else {
-        container.innerHTML = '<div class="empty-state">Ошибка загрузки</div>';
+        container.innerHTML = '<div class="empty-state">РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё</div>';
       }
     } catch (e) {
       console.error("Load bookings error:", e);
-      container.innerHTML = '<div class="empty-state">Нет соединения</div>';
+      container.innerHTML = '<div class="empty-state">РќРµС‚ СЃРѕРµРґРёРЅРµРЅРёСЏ</div>';
     }
   }
 
@@ -481,15 +481,15 @@ function initApp() {
         <div class="booking-stats">
           <div class="stat-item">
             <div class="stat-value">${stats.totalBookings || 0}</div>
-            <div class="stat-label">Бронирований</div>
+            <div class="stat-label">Р‘СЂРѕРЅРёСЂРѕРІР°РЅРёР№</div>
           </div>
           <div class="stat-item">
             <div class="stat-value">${stats.totalTickets || 0}</div>
-            <div class="stat-label">Билетов</div>
+            <div class="stat-label">Р‘РёР»РµС‚РѕРІ</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value">${stats.totalSpent || 0}₽</div>
-            <div class="stat-label">Потрачено</div>
+            <div class="stat-value">${stats.totalSpent || 0}в‚Ѕ</div>
+            <div class="stat-label">РџРѕС‚СЂР°С‡РµРЅРѕ</div>
           </div>
         </div>
       `;
@@ -499,8 +499,8 @@ function initApp() {
       if (container) {
         container.innerHTML = `
           <div class="empty-state">
-            <div class="empty-state-emoji">🎫</div>
-            <div>Пока нет забронированных билетов</div>
+            <div class="empty-state-emoji">рџЋ«</div>
+            <div>РџРѕРєР° РЅРµС‚ Р·Р°Р±СЂРѕРЅРёСЂРѕРІР°РЅРЅС‹С… Р±РёР»РµС‚РѕРІ</div>
           </div>
         `;
       }
@@ -512,27 +512,27 @@ function initApp() {
     container.innerHTML = bookings.map((b) => {
       const statusClass = b.status === 'confirmed' ? 'status-confirmed' : 
                           b.status === 'used' ? 'status-used' : 'status-cancelled';
-      const statusText = b.status === 'confirmed' ? '✓ Подтверждено' : 
-                         b.status === 'used' ? '✓ Использован' : '✗ Отменён';
+      const statusText = b.status === 'confirmed' ? 'вњ“ РџРѕРґС‚РІРµСЂР¶РґРµРЅРѕ' : 
+                         b.status === 'used' ? 'вњ“ РСЃРїРѕР»СЊР·РѕРІР°РЅ' : 'вњ— РћС‚РјРµРЅС‘РЅ';
       
       return `
         <div class="booking-item ${statusClass}">
           <img class="booking-image" src="${b.image_url || ''}" onerror="this.src='https://via.placeholder.com/800x600?text=Ticket'" />
           <div class="booking-content">
             <div class="booking-header">
-              <div class="booking-ref">Бронь: ${b.booking_reference || 'N/A'}</div>
+              <div class="booking-ref">Р‘СЂРѕРЅСЊ: ${b.booking_reference || 'N/A'}</div>
               <div class="booking-status ${statusClass}">${statusText}</div>
             </div>
             <div class="booking-title">${escapeHtml(b.title)}</div>
-            <div class="booking-meta">${escapeHtml(b.venue_name || '')} · ${b.start_time ? new Date(b.start_time).toLocaleDateString() : ''}</div>
+            <div class="booking-meta">${escapeHtml(b.venue_name || '')} В· ${b.start_time ? new Date(b.start_time).toLocaleDateString() : ''}</div>
             <div class="booking-details">
-              <span>🎟 ${b.ticket_count} билета</span>
-              <span>💰 ${b.total_price}₽</span>
+              <span>рџЋџ ${b.ticket_count} Р±РёР»РµС‚Р°</span>
+              <span>рџ’° ${b.total_price}в‚Ѕ</span>
             </div>
             <div class="booking-actions">
-              ${b.external_url ? `<a class="btn btn-primary" href="${b.external_url}" target="_blank">Открыть билет</a>` : ''}
-              ${b.status === 'confirmed' ? `<button class="btn btn-outline btn-use-booking" data-booking-id="${b.id}">Я посетил</button>` : ''}
-              ${b.status === 'confirmed' ? `<button class="btn btn-outline btn-cancel-booking" data-booking-id="${b.id}">Отменить</button>` : ''}
+              ${b.external_url ? `<a class="btn btn-primary" href="${b.external_url}" target="_blank">РћС‚РєСЂС‹С‚СЊ Р±РёР»РµС‚</a>` : ''}
+              ${b.status === 'confirmed' ? `<button class="btn btn-outline btn-use-booking" data-booking-id="${b.id}">РЇ РїРѕСЃРµС‚РёР»</button>` : ''}
+              ${b.status === 'confirmed' ? `<button class="btn btn-outline btn-cancel-booking" data-booking-id="${b.id}">РћС‚РјРµРЅРёС‚СЊ</button>` : ''}
             </div>
           </div>
         </div>
@@ -554,11 +554,11 @@ function initApp() {
     const price = event.price_min || 0;
     
     tg.showPopup({
-      title: "🎫 Бронирование",
-      message: `${event.title}\n\nБилетов: 1\nК оплате: ${price}₽`,
+      title: "рџЋ« Р‘СЂРѕРЅРёСЂРѕРІР°РЅРёРµ",
+      message: `${event.title}\n\nР‘РёР»РµС‚РѕРІ: 1\nРљ РѕРїР»Р°С‚Рµ: ${price}в‚Ѕ`,
       buttons: [
-        { type: "ok", text: "Забронировать" },
-        { type: "cancel", text: "Отмена" }
+        { type: "ok", text: "Р—Р°Р±СЂРѕРЅРёСЂРѕРІР°С‚СЊ" },
+        { type: "cancel", text: "РћС‚РјРµРЅР°" }
       ]
     }, async (btn) => {
       if (btn === "ok") {
@@ -567,13 +567,13 @@ function initApp() {
           if (data.ok) {
             tg.HapticFeedback?.notificationOccurred("success");
             tg.showPopup({
-              title: "✅ Успешно!",
-              message: `Бронь: ${data.booking.booking_reference}\nБилет доступен во вкладке "Билеты"`,
+              title: "вњ… РЈСЃРїРµС€РЅРѕ!",
+              message: `Р‘СЂРѕРЅСЊ: ${data.booking.booking_reference}\nР‘РёР»РµС‚ РґРѕСЃС‚СѓРїРµРЅ РІРѕ РІРєР»Р°РґРєРµ "Р‘РёР»РµС‚С‹"`,
               buttons: [{ type: "ok" }]
             });
           }
         } catch (e) {
-          tg.showPopup({ message: "Ошибка: " + e.message, buttons: [{ type: "ok" }] });
+          tg.showPopup({ message: "РћС€РёР±РєР°: " + e.message, buttons: [{ type: "ok" }] });
         }
       }
     });
@@ -581,9 +581,9 @@ function initApp() {
 
   async function useBooking(bookingId) {
     tg.showPopup({
-      title: "Посетить событие?",
-      message: "Подтвердите, что вы посетили мероприятие",
-      buttons: [{ type: "ok", text: "Подтвердить" }, { type: "cancel" }]
+      title: "РџРѕСЃРµС‚РёС‚СЊ СЃРѕР±С‹С‚РёРµ?",
+      message: "РџРѕРґС‚РІРµСЂРґРёС‚Рµ, С‡С‚Рѕ РІС‹ РїРѕСЃРµС‚РёР»Рё РјРµСЂРѕРїСЂРёСЏС‚РёРµ",
+      buttons: [{ type: "ok", text: "РџРѕРґС‚РІРµСЂРґРёС‚СЊ" }, { type: "cancel" }]
     }, async (btn) => {
       if (btn === "ok") {
         try {
@@ -591,14 +591,14 @@ function initApp() {
           if (data.ok) {
             tg.HapticFeedback?.notificationOccurred("success");
             tg.showPopup({
-              title: "🔥 Серия!",
-              message: `Твоя серия: ${data.streak} дн.`,
+              title: "рџ”Ґ РЎРµСЂРёСЏ!",
+              message: `РўРІРѕСЏ СЃРµСЂРёСЏ: ${data.streak} РґРЅ.`,
               buttons: [{ type: "ok" }]
             });
             loadBookings();
           }
         } catch (e) {
-          tg.showPopup({ message: "Ошибка: " + e.message, buttons: [{ type: "ok" }] });
+          tg.showPopup({ message: "РћС€РёР±РєР°: " + e.message, buttons: [{ type: "ok" }] });
         }
       }
     });
@@ -606,72 +606,72 @@ function initApp() {
 
   async function cancelBooking(bookingId) {
     tg.showPopup({
-      title: "Отменить бронь?",
-      message: "Вы уверены, что хотите отменить бронирование?",
-      buttons: [{ type: "ok", text: "Отменить" }, { type: "cancel" }]
+      title: "РћС‚РјРµРЅРёС‚СЊ Р±СЂРѕРЅСЊ?",
+      message: "Р’С‹ СѓРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ РѕС‚РјРµРЅРёС‚СЊ Р±СЂРѕРЅРёСЂРѕРІР°РЅРёРµ?",
+      buttons: [{ type: "ok", text: "РћС‚РјРµРЅРёС‚СЊ" }, { type: "cancel" }]
     }, async (btn) => {
       if (btn === "ok") {
         try {
           await apiPost("/api/bookings/cancel", { booking_id: bookingId });
           tg.HapticFeedback?.notificationOccurred("warning");
-          tg.showPopup({ message: "Бронь отменена", buttons: [{ type: "ok" }] });
+          tg.showPopup({ message: "Р‘СЂРѕРЅСЊ РѕС‚РјРµРЅРµРЅР°", buttons: [{ type: "ok" }] });
           loadBookings();
         } catch (e) {
-          tg.showPopup({ message: "Ошибка: " + e.message, buttons: [{ type: "ok" }] });
+          tg.showPopup({ message: "РћС€РёР±РєР°: " + e.message, buttons: [{ type: "ok" }] });
         }
       }
     });
   }
 
   
-  // КАРТА
-  async function loadMap() {
+  // РљРђР РўРђ
+  async async function loadMap() {
     const container = document.getElementById("map-container");
     const dateFilter = document.getElementById("filter-map-date");
     if (!container) return;
     
-    container.innerHTML = '<div class="loading">Загружаю карту...</div>';
+    container.innerHTML = '<div class="loading">Р—Р°РіСЂСѓР¶Р°СЋ РєР°СЂС‚Сѓ...</div>';
     
     try {
       const dateValue = dateFilter ? dateFilter.value : "today";
       const dateParam = dateValue === "today" ? new Date().toISOString().split('T')[0] : "";
       
       const data = await apiGet("/api/map" + (dateParam ? "?date=" + dateParam : ""));
-      log("📦 Map data:", data);
+      log("рџ“¦ Map data:", data);
       
       if (data.ok && data.events && data.events.length > 0) {
         renderMap(data.events, container);
       } else {
         container.innerHTML = `
           <div class="empty-state">
-            <div class="empty-state-emoji">🗺️</div>
-            <div>Нет событий на карте</div>
+            <div class="empty-state-emoji">рџ—єпёЏ</div>
+            <div>РќРµС‚ СЃРѕР±С‹С‚РёР№ РЅР° РєР°СЂС‚Рµ</div>
           </div>
         `;
       }
     } catch (e) {
-      log("❌ Map error:", e);
+      log("вќЊ Map error:", e);
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-emoji">❌</div>
-          <div>Ошибка загрузки карты</div>
+          <div class="empty-state-emoji">вќЊ</div>
+          <div>РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё РєР°СЂС‚С‹</div>
         </div>
       `;
     }
   }
   
   function renderMap(events, container) {
-    // Используем статичную карту с маркерами (без внешних библиотек)
+    // РСЃРїРѕР»СЊР·СѓРµРј СЃС‚Р°С‚РёС‡РЅСѓСЋ РєР°СЂС‚Сѓ СЃ РјР°СЂРєРµСЂР°РјРё (Р±РµР· РІРЅРµС€РЅРёС… Р±РёР±Р»РёРѕС‚РµРє)
     const centerLat = 55.7558;
     const centerLng = 37.6173;
     const zoom = 11;
     
-    // Создаём интерактивную карту через OpenStreetMap iframe
+    // РЎРѕР·РґР°С‘Рј РёРЅС‚РµСЂР°РєС‚РёРІРЅСѓСЋ РєР°СЂС‚Сѓ С‡РµСЂРµР· OpenStreetMap iframe
     let markers = events.map(e => {
-      const color = e.category === "concert" ? "🎵" : 
-                   e.category === "theater" ? "🎭" :
-                   e.category === "bar" ? "🍺" :
-                   e.category === "club" ? "💃" : "🎨";
+      const color = e.category === "concert" ? "рџЋµ" : 
+                   e.category === "theater" ? "рџЋ­" :
+                   e.category === "bar" ? "рџЌє" :
+                   e.category === "club" ? "рџ’ѓ" : "рџЋЁ";
       return `${color} ${e.title}`;
     }).join('<br>');
     
@@ -682,14 +682,14 @@ function initApp() {
           style="width:100%;height:100%;border:none;"
         ></iframe>
         <div style="position:absolute;bottom:10px;left:10px;right:10px;background:rgba(255,255,255,0.95);padding:15px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.2);max-height:200px;overflow-y:auto;">
-          <div style="font-weight:600;margin-bottom:10px;">📍 События (${events.length})</div>
+          <div style="font-weight:600;margin-bottom:10px;">рџ“Ќ РЎРѕР±С‹С‚РёСЏ (${events.length})</div>
           <div style="font-size:13px;line-height:1.6;">${markers}</div>
         </div>
       </div>
     `;
   }
 
-  // Профиль
+  // РџСЂРѕС„РёР»СЊ
   async function loadProfile() {
     try {
       const data = await apiGet("/api/profile");
@@ -721,7 +721,7 @@ function initApp() {
     if (!badgesContainer) return;
 
     if (!profile.badges || profile.badges.length === 0) {
-      badgesContainer.innerHTML = '<div class="empty-state">Пока нет значков</div>';
+      badgesContainer.innerHTML = '<div class="empty-state">РџРѕРєР° РЅРµС‚ Р·РЅР°С‡РєРѕРІ</div>';
       return;
     }
 
@@ -738,21 +738,21 @@ function initApp() {
       .join("");
   }
 
-  // Утилиты
+  // РЈС‚РёР»РёС‚С‹
   function formatPrice(min, max) {
-    if (!min && !max) return "Бесплатно";
-    if (min === max || !max) return `${min}₽`;
-    if (!min) return `до ${max}₽`;
-    return `${min}–${max}₽`;
+    if (!min && !max) return "Р‘РµСЃРїР»Р°С‚РЅРѕ";
+    if (min === max || !max) return `${min}в‚Ѕ`;
+    if (!min) return `РґРѕ ${max}в‚Ѕ`;
+    return `${min}вЂ“${max}в‚Ѕ`;
   }
 
   function translateCategory(cat) {
     const map = {
-      concert: "Концерт",
-      theater: "Театр",
-      bar: "Бар",
-      club: "Клуб",
-      exhibition: "Выставка",
+      concert: "РљРѕРЅС†РµСЂС‚",
+      theater: "РўРµР°С‚СЂ",
+      bar: "Р‘Р°СЂ",
+      club: "РљР»СѓР±",
+      exhibition: "Р’С‹СЃС‚Р°РІРєР°",
     };
     return map[cat] || cat;
   }
@@ -766,7 +766,7 @@ function initApp() {
       .replace(/"/g, "&quot;");
   }
 
-  // Запуск - загружаем события
+  // Р—Р°РїСѓСЃРє - Р·Р°РіСЂСѓР¶Р°РµРј СЃРѕР±С‹С‚РёСЏ
   console.log("App initialized, loading events...");
   loadEvents();
 }
