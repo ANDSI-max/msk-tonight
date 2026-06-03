@@ -94,15 +94,6 @@ function initApp() {
   loadEvents();
   });
 
-  // Фильтры - с проверкой на null
-  const filterCategory = document.getElementById("filter-category");
-  const filterDistrict = document.getElementById("filter-district");
-  if (filterCategory) {
-    filterCategory.addEventListener("change", loadEvents);
-  }
-  if (filterDistrict) {
-    filterDistrict.addEventListener("change", loadEvents);
-  }
 
   // Загрузка событий
   async function loadEvents() {
