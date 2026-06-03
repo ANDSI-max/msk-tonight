@@ -10,7 +10,7 @@ const db = new Database(dbPath);
 db.pragma("journal_mode = WAL");
 db.pragma("foreign_keys = ON");
 
-db.exec(`
+db.exec(\
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     telegram_id INTEGER UNIQUE NOT NULL,
@@ -34,7 +34,9 @@ db.exec(`
     price_min INTEGER,
     price_max INTEGER,
     image_url TEXT,
-    external_url TEXT
+    external_url TEXT,
+    lat REAL,
+    lng REAL
   );
 
   CREATE TABLE IF NOT EXISTS user_plans (
@@ -60,39 +62,20 @@ db.exec(`
   );
 
   CREATE TABLE IF NOT EXISTS bookings (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
-  event_id INTEGER NOT NULL,
-  ticket_count INTEGER DEFAULT 1,
-  total_price INTEGER NOT NULL,
-  status TEXT DEFAULT 'pending' CHECK(status IN ('pending','confirmed','cancelled','used')),
-  booking_reference TEXT UNIQUE,
-  external_url TEXT,
-  booked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
-);
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    event_id INTEGER NOT NULL,
+    ticket_count INTEGER DEFAULT 1,
+    total_price INTEGER NOT NULL,
+    status TEXT DEFAULT 'pending' CHECK(status IN ('pending','confirmed','cancelled','used')),
+    booking_reference TEXT UNIQUE,
+    external_url TEXT,
+    booked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+  );
 
-
-  -- РњРёРіСЂР°С†РёСЏ: РґРѕР±Р°РІР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ events (РµСЃР»Рё РЅРµС‚)
-  ALTER TABLE events ADD COLUMN lat REAL;
-  ALTER TABLE events ADD COLUMN lng REAL;
-
-CREATE INDEX IF NOT EXISTS idx_bookings_user ON bookings(user_id);
-
-  -- РњРёРіСЂР°С†РёСЏ: РґРѕР±Р°РІР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ events (РµСЃР»Рё РЅРµС‚)
-  ALTER TABLE events ADD COLUMN lat REAL;
-  ALTER TABLE events ADD COLUMN lng REAL;
-
-CREATE INDEX IF NOT EXISTS idx_bookings_event ON bookings(event_id);
-
-  -- РњРёРіСЂР°С†РёСЏ: РґРѕР±Р°РІР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ events (РµСЃР»Рё РЅРµС‚)
-  ALTER TABLE events ADD COLUMN lat REAL;
-  ALTER TABLE events ADD COLUMN lng REAL;
-
-CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
-
-CREATE TABLE IF NOT EXISTS user_badges (
+  CREATE TABLE IF NOT EXISTS user_badges (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     badge_id TEXT NOT NULL,
@@ -101,30 +84,13 @@ CREATE TABLE IF NOT EXISTS user_badges (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   );
 
-  
-  -- РњРёРіСЂР°С†РёСЏ: РґРѕР±Р°РІР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ events (РµСЃР»Рё РЅРµС‚)
-  ALTER TABLE events ADD COLUMN lat REAL;
-  ALTER TABLE events ADD COLUMN lng REAL;
-
-CREATE INDEX IF NOT EXISTS idx_events_category ON events(category);
-  
-  -- РњРёРіСЂР°С†РёСЏ: РґРѕР±Р°РІР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ events (РµСЃР»Рё РЅРµС‚)
-  ALTER TABLE events ADD COLUMN lat REAL;
-  ALTER TABLE events ADD COLUMN lng REAL;
-
-CREATE INDEX IF NOT EXISTS idx_events_start ON events(start_time);
-  
-  -- РњРёРіСЂР°С†РёСЏ: РґРѕР±Р°РІР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ events (РµСЃР»Рё РЅРµС‚)
-  ALTER TABLE events ADD COLUMN lat REAL;
-  ALTER TABLE events ADD COLUMN lng REAL;
-
-CREATE INDEX IF NOT EXISTS idx_plans_user ON user_plans(user_id);
-  
-  -- РњРёРіСЂР°С†РёСЏ: РґРѕР±Р°РІР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ events (РµСЃР»Рё РЅРµС‚)
-  ALTER TABLE events ADD COLUMN lat REAL;
-  ALTER TABLE events ADD COLUMN lng REAL;
-
-CREATE INDEX IF NOT EXISTS idx_swipes_user ON swipes(user_id);
-`);
+  CREATE INDEX IF NOT EXISTS idx_bookings_user ON bookings(user_id);
+  CREATE INDEX IF NOT EXISTS idx_bookings_event ON bookings(event_id);
+  CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
+  CREATE INDEX IF NOT EXISTS idx_events_category ON events(category);
+  CREATE INDEX IF NOT EXISTS idx_events_start ON events(start_time);
+  CREATE INDEX IF NOT EXISTS idx_plans_user ON user_plans(user_id);
+  CREATE INDEX IF NOT EXISTS idx_swipes_user ON swipes(user_id);
+\);
 
 export default db;
