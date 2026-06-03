@@ -1,37 +1,31 @@
 import db from "../database/db";
 import { MOCK_EVENTS } from "./mock-events";
 
-function todayAt(hours: number): Date {
-  const d = new Date();
-  d.setHours(19, 0, 0, 0);
-  d.setHours(d.getHours() + hours);
-  return d;
-}
-
-function fmt(d: Date): string {
+function fmt(d: Date | string): string {
+  if (typeof d === "string") return d.slice(0, 19).replace("T", " ");
   return d.toISOString().slice(0, 19).replace("T", " ");
 }
 
 export function seedEvents(force = false) {
   const row = db.prepare("SELECT COUNT(*) AS c FROM events").get() as { c: number };
   if (!force && row.c > 0) {
-    console.log(`[seed] В БД уже ${row.c} событий, пропускаю.`);
+    console.log(\[seed] В БД уже \ событий, пропускаю.\);
     return;
   }
   if (force) db.exec("DELETE FROM events;");
   
-  const insert = db.prepare(`INSERT INTO events (title, description, category, venue_name, address, district, start_time, end_time, price_min, price_max, image_url, external_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+  const insert = db.prepare(\INSERT INTO events (title, description, category, venue_name, address, district, start_time, end_time, price_min, price_max, image_url, external_url, lat, lng) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\);
   
   const tx = db.transaction((items: typeof MOCK_EVENTS) => {
     for (const e of items) {
-      const start = todayAt(e.hours_from_now);
-      const end = todayAt(e.hours_from_now + e.duration_hours);
-      insert.run(e.title, e.description, e.category, e.venue_name, e.address, e.district, fmt(start), fmt(end), e.price_min, e.price_max, e.image_url, e.external_url);
+      const startTime = new Date(e.start_time);
+      const endTime = new Date(startTime.getTime() + e.duration_hours * 60 * 60 * 1000);
+      insert.run(e.title, e.description, e.category, e.venue_name, e.address, e.district, fmt(startTime), fmt(endTime), e.price_min, e.price_max, e.image_url, e.external_url, e.lat, e.lng);
     }
   });
   
   tx(MOCK_EVENTS);
-  console.log(`[seed] Загружено ${MOCK_EVENTS.length} событий.`);
+  console.log(\[seed] Загружено \ событий.\);
 }
 
 if (require.main === module) {
