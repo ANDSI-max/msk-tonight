@@ -442,11 +442,7 @@ function initApp() {
     try {
       const data = await apiPost("/api/plan/attend", { event_id: eventId });
       if (data.ok) {
-        alert(
-          title: "🔥 Серия!",
-          message: `Твоя серия: ${data.streak} дн.`,
-          buttons: [{ type: "ok" }],
-        });
+        alert(`🔥 Серия! Твоя серия: ${data.streak} дн.`);
         loadPlan();
       }
     } catch (e) {
