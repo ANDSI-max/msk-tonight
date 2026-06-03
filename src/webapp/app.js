@@ -105,35 +105,51 @@ function initApp() {
   // API helpers
   async function apiGet(path) {
     try {
-      const res = await fetch(API_BASE + path, { headers: HEADERS });
+      const headers = { ...HEADERS };
+      const initData = getInitData();
+      if (initData) {
+        headers["X-Telegram-Init-Data"] = initData;
+      }
+      const res = await fetch(API_BASE + path, { headers });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      console.log("API GET", path, "=>", data);
+      log("📦 API GET " + path + " => " + JSON.stringify(data));
       return data;
     } catch (e) {
-      console.error("API GET error:", e, "path:", path);
+      log("❌ API GET error: " + path + " - " + e.message);
       throw e;
     }
   }
 
   async function apiPost(path, body) {
     try {
+      const headers = { ...HEADERS };
+      const initData = getInitData();
+      if (initData) {
+        headers["X-Telegram-Init-Data"] = initData;
+      }
       const res = await fetch(API_BASE + path, {
         method: "POST",
-        headers: HEADERS,
+        headers,
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      console.log("API POST", path, "=>", data);
+      log("📦 API POST " + path + " => " + JSON.stringify(data));
       return data;
     } catch (e) {
-      console.error("API POST error:", e, "path:", path);
+      log("❌ API POST error: " + path + " - " + e.message);
       throw e;
     }
   }
 
   const API_BASE = window.location.origin;
+  
+  // Получаем initData из Telegram
+  function getInitData() {
+    if (tg.initData) return tg.initData;
+    return null;
+  }
   const HEADERS = { "Content-Type": "application/json" };
 
   // Рендер карточек
