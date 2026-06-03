@@ -9,12 +9,12 @@ function fmt(d: Date | string): string {
 export function seedEvents(force = false) {
   const row = db.prepare("SELECT COUNT(*) AS c FROM events").get() as { c: number };
   if (!force && row.c > 0) {
-    console.log(\[seed] В БД уже \ событий, пропускаю.\);
+    console.log("[seed] В БД уже " + row.c + " событий, пропускаю.");
     return;
   }
   if (force) db.exec("DELETE FROM events;");
   
-  const insert = db.prepare(\INSERT INTO events (title, description, category, venue_name, address, district, start_time, end_time, price_min, price_max, image_url, external_url, lat, lng) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\);
+  const insert = db.prepare("INSERT INTO events (title, description, category, venue_name, address, district, start_time, end_time, price_min, price_max, image_url, external_url, lat, lng) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
   
   const tx = db.transaction((items: typeof MOCK_EVENTS) => {
     for (const e of items) {
@@ -25,7 +25,7 @@ export function seedEvents(force = false) {
   });
   
   tx(MOCK_EVENTS);
-  console.log(\[seed] Загружено \ событий.\);
+  console.log("[seed] Загружено " + MOCK_EVENTS.length + " событий.");
 }
 
 if (require.main === module) {
