@@ -174,11 +174,13 @@ function initApp() {
     });
 
     if (events.length > currentCardIndex) {
+      const remaining = events.length - currentCardIndex;
       tg.MainButton.show();
-      tg.MainButton.setText("Пропустить событие");
+      tg.MainButton.setText(`⏭ Пропустить (${remaining})`);
       tg.MainButton.onClick(onSkip);
     } else {
-      tg.MainButton.hide();
+      tg.MainButton.setText("✅ Все события просмотрены");
+      setTimeout(() => tg.MainButton.hide(), 2000);
     }
   }
 
@@ -280,9 +282,15 @@ function initApp() {
     });
   }
 
-  async function swipe(card, event, direction) {
-    tg.HapticFeedback?.impactOccurred("medium");
-    card.classList.add(direction === "left" ? "swipe-left" : "swipe-right");
+  if (events.length > currentCardIndex) {
+      const remaining = events.length - currentCardIndex;
+      tg.MainButton.show();
+      tg.MainButton.setText(`⏭ Пропустить (${remaining})`);
+      tg.MainButton.onClick(onSkip);
+    } else {
+      tg.MainButton.setText("✅ Все события просмотрены");
+      setTimeout(() => tg.MainButton.hide(), 2000);
+    }
 
     try {
       await apiPost("/api/events/swipe", { event_id: event.id, direction: direction === "right" ? "like" : "dislike" });
@@ -309,6 +317,15 @@ function initApp() {
     if (card) {
       const event = events[currentCardIndex];
       if (event) swipe(card, event, "left");
+    }
+    tg.HapticFeedback?.impactOccurred("light");
+  }
+
+  
+  function updateMainButtonText() {
+    if (events.length > currentCardIndex) {
+      const remaining = events.length - currentCardIndex;
+      tg.MainButton.setText(`⏭ Пропустить (${remaining})`);
     }
   }
 
