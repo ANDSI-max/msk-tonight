@@ -4,7 +4,19 @@
 const tg = window.Telegram.WebApp;
 
 function getInitData() {
-  if (tg.initData) return tg.initData;
+  // Пробуем разные способы получения initData
+  if (tg.initData) {
+    console.log("InitData из tg.initData");
+    return tg.initData;
+  }
+  // Пытаемся получить из URL (для отладки)
+  const urlParams = new URLSearchParams(window.location.search);
+  const initData = urlParams.get("tgInitData");
+  if (initData) {
+    console.log("InitData из URL");
+    return initData;
+  }
+  console.warn("InitData не найден!");
   return null;
 }
 tg.ready();
@@ -425,12 +437,12 @@ function initApp() {
   }
 
   async function addToPlan(eventId) {
-    tg.HapticFeedback?.impactOccurred("light");
+    if (tg.HapticFeedback && tg.version && parseFloat(tg.version) >= 6.1) { tg.HapticFeedback.impactOccurred("light"); }
     try {
       await apiPost("/api/plan/add", { event_id: eventId });
-      tg.showPopup({ message: "Добавлено в план!", buttons: [{ type: "ok" }] });
+      alert("✅ Добавлено в план!");
     } catch (e) {
-      tg.showPopup({ message: "Ошибка: " + e.message, buttons: [{ type: "ok" }] });
+      alert("❌ Ошибка: " + e.message);
     }
   }
 
@@ -439,7 +451,7 @@ function initApp() {
     try {
       const data = await apiPost("/api/plan/attend", { event_id: eventId });
       if (data.ok) {
-        tg.showPopup({
+        alert(
           title: "🔥 Серия!",
           message: `Твоя серия: ${data.streak} дн.`,
           buttons: [{ type: "ok" }],
@@ -447,7 +459,7 @@ function initApp() {
         loadPlan();
       }
     } catch (e) {
-      tg.showPopup({ message: "Ошибка: " + e.message, buttons: [{ type: "ok" }] });
+      alert("❌ Ошибка: " + e.message);
     }
   }
 
@@ -457,7 +469,7 @@ function initApp() {
       loadPlan();
     } catch (e) {
       console.error("Remove error:", e);
-      tg.showPopup({ message: "Ошибка при удалении", buttons: [{ type: "ok" }] });
+      alert( message: "Ошибка при удалении", );
     }
   }
 
@@ -473,9 +485,9 @@ function initApp() {
     } else {
       try {
         await navigator.clipboard.writeText(shareUrl);
-        tg.showPopup({ message: "Ссылка скопирована!", buttons: [{ type: "ok" }] });
+        alert( message: "Ссылка скопирована!", );
       } catch (e) {
-        tg.showPopup({ message: shareUrl, buttons: [{ type: "ok" }] });
+        alert( message: shareUrl, );
       }
     }
   }
@@ -581,7 +593,7 @@ function initApp() {
     
     const price = event.price_min || 0;
     
-    tg.showPopup({
+    alert(
       title: "🎫 Бронирование",
       message: `${event.title}\n\nБилетов: 1\nК оплате: ${price}₽`,
       buttons: [
@@ -594,21 +606,21 @@ function initApp() {
           const data = await apiPost("/api/bookings/create", { event_id: eventId, ticket_count: 1 });
           if (data.ok) {
             tg.HapticFeedback?.notificationOccurred("success");
-            tg.showPopup({
+            alert(
               title: "✅ Успешно!",
               message: `Бронь: ${data.booking.booking_reference}\nБилет доступен во вкладке "Билеты"`,
               buttons: [{ type: "ok" }]
             });
           }
         } catch (e) {
-          tg.showPopup({ message: "Ошибка: " + e.message, buttons: [{ type: "ok" }] });
+          alert("❌ Ошибка: " + e.message);
         }
       }
     });
   }
 
   async function useBooking(bookingId) {
-    tg.showPopup({
+    alert(
       title: "Посетить событие?",
       message: "Подтвердите, что вы посетили мероприятие",
       buttons: [{ type: "ok", text: "Подтвердить" }, { type: "cancel" }]
@@ -618,7 +630,7 @@ function initApp() {
           const data = await apiPost("/api/bookings/use", { booking_id: bookingId });
           if (data.ok) {
             tg.HapticFeedback?.notificationOccurred("success");
-            tg.showPopup({
+            alert(
               title: "🔥 Серия!",
               message: `Твоя серия: ${data.streak} дн.`,
               buttons: [{ type: "ok" }]
@@ -626,14 +638,14 @@ function initApp() {
             loadBookings();
           }
         } catch (e) {
-          tg.showPopup({ message: "Ошибка: " + e.message, buttons: [{ type: "ok" }] });
+          alert("❌ Ошибка: " + e.message);
         }
       }
     });
   }
 
   async function cancelBooking(bookingId) {
-    tg.showPopup({
+    alert(
       title: "Отменить бронь?",
       message: "Вы уверены, что хотите отменить бронирование?",
       buttons: [{ type: "ok", text: "Отменить" }, { type: "cancel" }]
@@ -642,10 +654,10 @@ function initApp() {
         try {
           await apiPost("/api/bookings/cancel", { booking_id: bookingId });
           tg.HapticFeedback?.notificationOccurred("warning");
-          tg.showPopup({ message: "Бронь отменена", buttons: [{ type: "ok" }] });
+          alert( message: "Бронь отменена", );
           loadBookings();
         } catch (e) {
-          tg.showPopup({ message: "Ошибка: " + e.message, buttons: [{ type: "ok" }] });
+          alert("❌ Ошибка: " + e.message);
         }
       }
     });
