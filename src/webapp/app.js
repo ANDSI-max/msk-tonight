@@ -8,6 +8,21 @@ tg.expand();
 // Ждём загрузки DOM перед инициализацией
 document.addEventListener('DOMContentLoaded', initApp);
 
+
+// Применяем тему Telegram
+function applyTheme() {
+  const root = document.documentElement;
+  const p = tg.themeParams;
+  if (!p) return;
+  
+  root.style.setProperty('--tg-theme-bg-color', p.bg_color || '#ffffff');
+  root.style.setProperty('--tg-theme-text-color', p.text_color || '#000000');
+  root.style.setProperty('--tg-theme-hint-color', p.hint_color || '#999999');
+  root.style.setProperty('--tg-theme-link-color', p.link_color || '#2481cc');
+  root.style.setProperty('--tg-theme-button-color', p.button_color || '#2481cc');
+  root.style.setProperty('--tg-theme-button-text-color', p.button_text_color || '#ffffff');
+  root.style.setProperty('--tg-theme-secondary-bg-color', p.secondary_bg_color || '#f0f0f0');
+}
 function initApp() {
   // Применяем тему Telegram
   applyTheme();
