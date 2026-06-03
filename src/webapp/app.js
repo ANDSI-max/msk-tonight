@@ -441,12 +441,12 @@ function initApp() {
     tg.HapticFeedback?.impactOccurred("medium");
     try {
       const data = await apiPost("/api/plan/attend", { event_id: eventId });
-      if (data.ok) {
+      if (data && data.ok) {
         alert(`🔥 Серия! Твоя серия: ${data.streak} дн.`);
         loadPlan();
       }
     } catch (e) {
-      alert("❌ Ошибка: " + e.message);
+      alert("❌ Ошибка: " + (e.message || "Неизвестная ошибка"));
     }
   }
 
@@ -456,7 +456,7 @@ function initApp() {
       loadPlan();
     } catch (e) {
       console.error("Remove error:", e);
-      alert( message: "Ошибка при удалении", );
+      alert("❌ Ошибка при удалении");
     }
   }
 
