@@ -12,76 +12,293 @@ export interface MockEvent {
   venue_name: string;
   address: string;
   district: string;
-  hours_from_now: number; // через сколько часов от сегодняшних 19:00 начнётся
+  start_time: string; // ISO 8601 дата начала
   duration_hours: number;
   price_min: number;
   price_max: number;
   image_url: string;
   external_url: string;
+  lat: number; // Широта
+  lng: number; // Долгота
 }
 
-// Картинки — заглушки с unsplash, чтобы было «живо» без своих ассетов
-const img = (q: string) =>
-  `https://source.unsplash.com/featured/800x600/?${encodeURIComponent(q)}`;
+// Генерируем дату на сегодня
+const today = new Date();
+today.setHours(19, 0, 0, 0);
+
+const inHours = (h: number) => {
+  const d = new Date(today);
+  d.setHours(d.getHours() + h);
+  return d.toISOString();
+};
+
+// Картинки с Unsplash
+const img = (q: string) => `https://images.unsplash.com/photo-${q}?w=800&h=600&fit=crop`;
 
 export const MOCK_EVENTS: MockEvent[] = [
   // Концерты
-  { title: "Мумий Тролль в Crocus City Hall", description: "Большой сольный концерт легендарной группы", category: "concert", venue_name: "Crocus City Hall", address: "65-66 км МКАД", district: "Красногорск", hours_from_now: 0, duration_hours: 3, price_min: 3500, price_max: 12000, image_url: img("rock,concert"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Джаз-сет в 16 тонн", description: "Уютный вечер живого джаза", category: "concert", venue_name: "16 тонн", address: "ул. Пресненский Вал, 6с1", district: "Пресненский", hours_from_now: 1, duration_hours: 3, price_min: 1500, price_max: 2500, image_url: img("jazz,club"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Indie-вечер в А2", description: "Молодые российские инди-группы", category: "concert", venue_name: "Клуб А2", address: "Звенигородское ш., 18/20", district: "Пресненский", hours_from_now: 2, duration_hours: 4, price_min: 1200, price_max: 3000, image_url: img("indie,band"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Симфонический оркестр в Зарядье", description: "Чайковский. Симфония №6", category: "concert", venue_name: "Зарядье", address: "ул. Варварка, 6с1", district: "Тверской", hours_from_now: 0, duration_hours: 2, price_min: 2500, price_max: 8000, image_url: img("orchestra"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Electronic Live в Powerhouse", description: "Электроника, синтвейв, лайв-сет", category: "concert", venue_name: "Powerhouse", address: "ул. Новодмитровская, 5с2", district: "Бутырский", hours_from_now: 3, duration_hours: 4, price_min: 1500, price_max: 2500, image_url: img("electronic,live") , external_url: "https://t.me/msk_tonight_bot"},
-  { title: "Хип-хоп на Adrenaline Stadium", description: "Большой open air хип-хоп фест", category: "concert", venue_name: "Adrenaline Stadium", address: "Ленинградский пр-т, 80к17", district: "Аэропорт", hours_from_now: 1, duration_hours: 5, price_min: 2500, price_max: 6000, image_url: img("hiphop,rap"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Acoustic Night в Pravda Bar", description: "Авторская песня под гитару", category: "concert", venue_name: "Pravda Bar", address: "ул. Никольская, 19-21", district: "Тверской", hours_from_now: 2, duration_hours: 3, price_min: 500, price_max: 1000, image_url: img("acoustic,guitar"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Камерный концерт в МДМ", description: "Струнный квартет, классика", category: "concert", venue_name: "Московский Дом Музыки", address: "Космодамианская наб., 52с8", district: "Замоскворечье", hours_from_now: 0, duration_hours: 2, price_min: 1500, price_max: 5000, image_url: img("classical,strings"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Reggae Party в Krisis Genre", description: "Регги, ска, dub", category: "concert", venue_name: "Krisis Genre", address: "Покровка, 16/16с1", district: "Басманный", hours_from_now: 4, duration_hours: 4, price_min: 800, price_max: 1500, image_url: img("reggae"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Metal Night в Volta", description: "Тру-метал и хардкор", category: "concert", venue_name: "Volta", address: "ул. Дербеневская, 20с14", district: "Даниловский", hours_from_now: 3, duration_hours: 4, price_min: 1500, price_max: 2500, image_url: img("metal,concert"), external_url: "https://t.me/msk_tonight_bot" },
+  { 
+    title: " Mumiy Troll в Crocus City Hall", 
+    description: "Большой сольный концерт легендарной группы", 
+    category: "concert", 
+    venue_name: "Crocus City Hall", 
+    address: "65-66 км МКАД, Красногорск", 
+    district: "Красногорск", 
+    start_time: inHours(0), 
+    duration_hours: 3, 
+    price_min: 3500, 
+    price_max: 12000, 
+    image_url: img("1501453798875-94eb9513ff4c"), 
+    external_url: "https://t.me/msk_tonight_bot",
+    lat: 55.8194,
+    lng: 37.4028
+  },
+  { 
+    title: "Джаз-сет в 16 тонн", 
+    description: "Уютный вечер живого джаза", 
+    category: "concert", 
+    venue_name: "16 тонн", 
+    address: "ул. Пресненский Вал, 6с1", 
+    district: "Пресненский", 
+    start_time: inHours(1), 
+    duration_hours: 3, 
+    price_min: 1500, 
+    price_max: 2500, 
+    image_url: img("1511198650316-37d7e5de30ca"), 
+    external_url: "https://t.me/msk_tonight_bot",
+    lat: 55.7558,
+    lng: 37.5672
+  },
+  { 
+    title: "Indie-вечер в А2", 
+    description: "Молодые российские инди-группы", 
+    category: "concert", 
+    venue_name: "Клуб А2", 
+    address: "Звенигородское ш., 18/20", 
+    district: "Пресненский", 
+    start_time: inHours(2), 
+    duration_hours: 4, 
+    price_min: 1200, 
+    price_max: 3000, 
+    image_url: img("1459691118739-eec412e48e95"), 
+    external_url: "https://t.me/msk_tonight_bot",
+    lat: 55.7595,
+    lng: 37.5535
+  },
+  { 
+    title: "Симфонический оркестр в Зарядье", 
+    description: "Чайковский. Симфония №6", 
+    category: "concert", 
+    venue_name: "Зарядье", 
+    address: "ул. Варварка, 6с1", 
+    district: "Тверской", 
+    start_time: inHours(0), 
+    duration_hours: 2, 
+    price_min: 2500, 
+    price_max: 8000, 
+    image_url: img("1514194111488-47e8a69286aa"), 
+    external_url: "https://t.me/msk_tonight_bot",
+    lat: 55.7514,
+    lng: 37.6281
+  },
+  { 
+    title: "Electronic Live в Powerhouse", 
+    description: "Электроника, синтвейв, лайв-сет", 
+    category: "concert", 
+    venue_name: "Powerhouse", 
+    address: "ул. Новодмитровская, 5с2", 
+    district: "Бутырский", 
+    start_time: inHours(3), 
+    duration_hours: 4, 
+    price_min: 1500, 
+    price_max: 2500, 
+    image_url: img("1470252649783-076681d688f5"), 
+    external_url: "https://t.me/msk_tonight_bot",
+    lat: 55.7961,
+    lng: 37.6156
+  },
+  { 
+    title: "Хип-хоп на Adrenaline Stadium", 
+    description: "Большой open air хип-хоп фест", 
+    category: "concert", 
+    venue_name: "Adrenaline Stadium", 
+    address: "Ленинградский пр-т, 80к17", 
+    district: "Аэропорт", 
+    start_time: inHours(1), 
+    duration_hours: 5, 
+    price_min: 2500, 
+    price_max: 6000, 
+    image_url: img("1459691118739-eec412e48e95"), 
+    external_url: "https://t.me/msk_tonight_bot",
+    lat: 55.8069,
+    lng: 37.5297
+  },
 
   // Театр
-  { title: "Гамлет в МХТ им. Чехова", description: "Классическая постановка с современным акцентом", category: "theater", venue_name: "МХТ им. Чехова", address: "Камергерский пер., 3", district: "Тверской", hours_from_now: 0, duration_hours: 3, price_min: 1500, price_max: 8000, image_url: img("theater,stage"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Чайка в Современнике", description: "Чехов в новой режиссёрской версии", category: "theater", venue_name: "Современник", address: "Чистопрудный бульвар, 19А", district: "Басманный", hours_from_now: 0, duration_hours: 3, price_min: 1200, price_max: 6000, image_url: img("theatre"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Мастер и Маргарита на Таганке", description: "Знаменитая постановка по Булгакову", category: "theater", venue_name: "Театр на Таганке", address: "ул. Земляной Вал, 76/21", district: "Таганский", hours_from_now: 0, duration_hours: 3, price_min: 1500, price_max: 7000, image_url: img("drama"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Ромео и Джульетта в Et Cetera", description: "Молодёжная трактовка Шекспира", category: "theater", venue_name: "Et Cetera", address: "Фролов пер., 2", district: "Басманный", hours_from_now: 1, duration_hours: 3, price_min: 1000, price_max: 4500, image_url: img("shakespeare"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Три сестры в МХТ", description: "Чеховская драма", category: "theater", venue_name: "МХТ им. Чехова", address: "Камергерский пер., 3", district: "Тверской", hours_from_now: 0, duration_hours: 3, price_min: 1500, price_max: 7000, image_url: img("theater,actors"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Стендап-комедия в Standup Store", description: "Лучшие комики Москвы", category: "theater", venue_name: "Standup Store", address: "ул. Покровка, 6", district: "Басманный", hours_from_now: 2, duration_hours: 2, price_min: 800, price_max: 2000, image_url: img("standup,comedy"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Иммерсивный спектакль Вернувшиеся", description: "Зритель — часть истории", category: "theater", venue_name: "Особняк Спиридонова", address: "ул. Спиридоновка, 17", district: "Пресненский", hours_from_now: 0, duration_hours: 2, price_min: 4500, price_max: 9000, image_url: img("immersive,theatre"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Балет Лебединое озеро в Большом", description: "Главная сцена страны", category: "theater", venue_name: "Большой театр", address: "Театральная пл., 1", district: "Тверской", hours_from_now: 0, duration_hours: 3, price_min: 3500, price_max: 18000, image_url: img("ballet"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Опера Травиата в МАМТ", description: "Опера Верди", category: "theater", venue_name: "МАМТ им. Станиславского", address: "Большая Дмитровка, 17", district: "Тверской", hours_from_now: 0, duration_hours: 3, price_min: 2000, price_max: 9000, image_url: img("opera"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Сатирикон. Король Лир", description: "Постановка с Константином Райкиным", category: "theater", venue_name: "Сатирикон", address: "Шереметьевская ул., 8", district: "Марьина роща", hours_from_now: 0, duration_hours: 3, price_min: 1500, price_max: 5000, image_url: img("theatre,curtains"), external_url: "https://t.me/msk_tonight_bot" },
+  { 
+    title: "Гамлет во МХТ им. Чехова", 
+    description: "Классическая постановка с современным акцентом", 
+    category: "theater", 
+    venue_name: "МХТ им. Чехова", 
+    address: "Камергерский пер., 3", 
+    district: "Тверской", 
+    start_time: inHours(0), 
+    duration_hours: 3, 
+    price_min: 1500, 
+    price_max: 8000, 
+    image_url: img("1503095628777-9a9d6a951ef3"), 
+    external_url: "https://t.me/msk_tonight_bot",
+    lat: 55.7592,
+    lng: 37.6136
+  },
+  { 
+    title: "Чайка в Современнике", 
+    description: "Чехов в новой режиссёрской версии", 
+    category: "theater", 
+    venue_name: "Современник", 
+    address: "Чистопрудный бульвар, 19А", 
+    district: "Басманный", 
+    start_time: inHours(0), 
+    duration_hours: 3, 
+    price_min: 1200, 
+    price_max: 6000, 
+    image_url: img("1507293871303-9a423b27f6b8"), 
+    external_url: "https://t.me/msk_tonight_bot",
+    lat: 55.7644,
+    lng: 37.6503
+  },
+  { 
+    title: "Мастер и Маргарита на Таганке", 
+    description: "Знаменитая постановка по Булгакову", 
+    category: "theater", 
+    venue_name: "Театр на Таганке", 
+    address: "ул. Земляной Вал, 76/21", 
+    district: "Таганский", 
+    start_time: inHours(0), 
+    duration_hours: 3, 
+    price_min: 1500, 
+    price_max: 7000, 
+    image_url: img("1514194111488-47e8a69286aa"), 
+    external_url: "https://t.me/msk_tonight_bot",
+    lat: 55.7435,
+    lng: 37.6515
+  },
+  { 
+    title: "Балет Лебединое озеро в Большом", 
+    description: "Главная сцена страны", 
+    category: "theater", 
+    venue_name: "Большой театр", 
+    address: "Театральная пл., 1", 
+    district: "Тверской", 
+    start_time: inHours(0), 
+    duration_hours: 3, 
+    price_min: 3500, 
+    price_max: 18000, 
+    image_url: img("1516536936684-4a607e87f6a1"), 
+    external_url: "https://t.me/msk_tonight_bot",
+    lat: 55.7597,
+    lng: 37.6178
+  },
 
   // Бары
-  { title: "Винная дегустация в Sixty", description: "5 вин с панорамой Москва-Сити", category: "bar", venue_name: "Sixty", address: "Башня Федерация, 62 этаж", district: "Пресненский", hours_from_now: 2, duration_hours: 2, price_min: 3500, price_max: 4500, image_url: img("wine,bar"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Happy hour в Mendeleev Bar", description: "Скрытый бар на Петровке, -30% до 22:00", category: "bar", venue_name: "Mendeleev Bar", address: "ул. Петровка, 20/1", district: "Тверской", hours_from_now: 1, duration_hours: 4, price_min: 600, price_max: 1500, image_url: img("speakeasy,cocktail"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Крафт-вечер в Underdog", description: "Авторские сорта пива и закуски", category: "bar", venue_name: "Underdog", address: "ул. Льва Толстого, 23А", district: "Хамовники", hours_from_now: 2, duration_hours: 5, price_min: 400, price_max: 1200, image_url: img("craft,beer"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Коктейльный мастер-класс в 32.05", description: "Учимся миксовать вместе с барменами", category: "bar", venue_name: "32.05", address: "Большой Патриарший пер., 4", district: "Пресненский", hours_from_now: 3, duration_hours: 2, price_min: 2000, price_max: 3000, image_url: img("cocktail,mixology"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Whisky tasting в Delicatessen", description: "5 односолодовых из Шотландии", category: "bar", venue_name: "Delicatessen", address: "Садовая-Каретная, 20с2", district: "Тверской", hours_from_now: 3, duration_hours: 2, price_min: 3000, price_max: 4500, image_url: img("whisky,bar"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Rooftop вечер в O2 Lounge", description: "Коктейли с видом на Кремль", category: "bar", venue_name: "O2 Lounge", address: "ул. Тверская, 3", district: "Тверской", hours_from_now: 2, duration_hours: 4, price_min: 1200, price_max: 3000, image_url: img("rooftop,bar"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Tiki-party в El Camino", description: "Гавайская вечеринка с ромом", category: "bar", venue_name: "El Camino", address: "Большая Лубянка, 24/15", district: "Мещанский", hours_from_now: 3, duration_hours: 5, price_min: 700, price_max: 1800, image_url: img("tiki,bar"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Tequila night в Sangre Fresca", description: "Текила, мескаль, мариачи", category: "bar", venue_name: "Sangre Fresca", address: "ул. Маросейка, 13с3", district: "Басманный", hours_from_now: 4, duration_hours: 4, price_min: 500, price_max: 1500, image_url: img("tequila,mexican"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Дегустация наливок в El Copitas", description: "Авторские настойки и закуски", category: "bar", venue_name: "El Copitas", address: "ул. Сретенка, 26/1", district: "Мещанский", hours_from_now: 3, duration_hours: 3, price_min: 2500, price_max: 3500, image_url: img("infusion,bar"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Караоке-вечер в Парнас", description: "Поём до утра", category: "bar", venue_name: "Парнас", address: "ул. Малая Бронная, 4с2", district: "Пресненский", hours_from_now: 4, duration_hours: 5, price_min: 1000, price_max: 2500, image_url: img("karaoke"), external_url: "https://t.me/msk_tonight_bot" },
+  { 
+    title: "Коктейльная вечеринка в Delicatessen", 
+    description: "Авторские коктейли от лучших барменов", 
+    category: "bar", 
+    venue_name: "Delicatessen", 
+    address: "ул. Олимпийский проспект, 5с3", 
+    district: "Мещанский", 
+    start_time: inHours(2), 
+    duration_hours: 4, 
+    price_min: 1000, 
+    price_max: 3000, 
+    image_url: img("1514194111488-47e8a69286aa"), 
+    external_url: "https://t.me/msk_tonight_bot",
+    lat: 55.7839,
+    lng: 37.6247
+  },
+  { 
+    title: "Виски-дегустация в Simple Wine Bar", 
+    description: "Дегустация редких шотландских виски", 
+    category: "bar", 
+    venue_name: "Simple Wine Bar", 
+    address: "ул. Рождественка, 12", 
+    district: "Мещанский", 
+    start_time: inHours(1), 
+    duration_hours: 2, 
+    price_min: 2000, 
+    price_max: 5000, 
+    image_url: img("1516536936684-4a607e87f6a1"), 
+    external_url: "https://t.me/msk_tonight_bot",
+    lat: 55.7642,
+    lng: 37.6253
+  },
 
   // Клубы
-  { title: "Techno Night в Gipsy", description: "Лучшие резиденты, рассвет на крыше", category: "club", venue_name: "Gipsy", address: "Болотная наб., 3с4", district: "Якиманка", hours_from_now: 5, duration_hours: 7, price_min: 1500, price_max: 3000, image_url: img("techno,club"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "House-сет в Mutabor", description: "Big room и progressive", category: "club", venue_name: "Mutabor", address: "ул. Шарикоподшипниковская, 13с33", district: "Южнопортовый", hours_from_now: 6, duration_hours: 8, price_min: 1500, price_max: 3500, image_url: img("house,nightclub"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Drum & Bass в Powerhouse", description: "DnB, jungle, neurofunk", category: "club", venue_name: "Powerhouse", address: "ул. Новодмитровская, 5с2", district: "Бутырский", hours_from_now: 5, duration_hours: 6, price_min: 1200, price_max: 2500, image_url: img("dnb,club"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "R&B Night в Icon", description: "Современный R&B и hip-hop", category: "club", venue_name: "Icon", address: "Болотная наб., 9с2", district: "Якиманка", hours_from_now: 5, duration_hours: 6, price_min: 1500, price_max: 3000, image_url: img("rnb,club"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Disco Inferno в Soho Rooms", description: "Ретро-дискотека 80-90х", category: "club", venue_name: "Soho Rooms", address: "Саввинская наб., 12с8", district: "Хамовники", hours_from_now: 4, duration_hours: 6, price_min: 2000, price_max: 4000, image_url: img("disco,retro"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Underground rave в Arma17", description: "Тёмный техно-рейв", category: "club", venue_name: "Arma17", address: "Нижний Сусальный пер., 5с8", district: "Басманный", hours_from_now: 6, duration_hours: 8, price_min: 1500, price_max: 3000, image_url: img("rave,underground"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Latina Friday в Coyote Ugly", description: "Сальса, бачата, реггетон", category: "club", venue_name: "Coyote Ugly", address: "ул. Малая Никитская, 24/1с5", district: "Пресненский", hours_from_now: 4, duration_hours: 6, price_min: 800, price_max: 2000, image_url: img("latina,dance"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Open air в Roots United", description: "Open air электроника на крыше", category: "club", venue_name: "Roots United", address: "Кутузовский пр-т, 36с35", district: "Дорогомилово", hours_from_now: 5, duration_hours: 7, price_min: 1200, price_max: 2800, image_url: img("openair,electronic"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "K-pop ночь в Pravda", description: "Танцпол только из k-pop хитов", category: "club", venue_name: "Pravda", address: "Малая Сухаревская пл., 6с1", district: "Мещанский", hours_from_now: 4, duration_hours: 5, price_min: 1000, price_max: 2000, image_url: img("kpop"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Indie-дискотека в Mosaic", description: "Indie hits 2000-2020", category: "club", venue_name: "Mosaic", address: "ул. Пятницкая, 18", district: "Замоскворечье", hours_from_now: 4, duration_hours: 6, price_min: 700, price_max: 1500, image_url: img("indie,dance"), external_url: "https://t.me/msk_tonight_bot" },
+  { 
+    title: "Techno Night в Mutabor", 
+    description: "Лучшие техно-диджеи Москвы", 
+    category: "club", 
+    venue_name: "Mutabor", 
+    address: "ул. Авиамоторная, 47с3", 
+    district: "Лефортово", 
+    start_time: inHours(4), 
+    duration_hours: 6, 
+    price_min: 1000, 
+    price_max: 2500, 
+    image_url: img("1516536936684-4a607e87f6a1"), 
+    external_url: "https://t.me/msk_tonight_bot",
+    lat: 55.7381,
+    lng: 37.7028
+  },
+  { 
+    title: "House Party в Gazgolder", 
+    description: "Хаус музыка и танцы до утра", 
+    category: "club", 
+    venue_name: "Gazgolder", 
+    address: "ул. Пятницкая, 53", 
+    district: "Замоскворечье", 
+    start_time: inHours(3), 
+    duration_hours: 5, 
+    price_min: 800, 
+    price_max: 2000, 
+    image_url: img("1470252649783-076681d688f5"), 
+    external_url: "https://t.me/msk_tonight_bot",
+    lat: 55.7364,
+    lng: 37.6303
+  },
 
   // Выставки
-  { title: "Русский импрессионизм в Третьяковке", description: "Знаменитая ретроспектива", category: "exhibition", venue_name: "Новая Третьяковка", address: "Крымский Вал, 10", district: "Якиманка", hours_from_now: -3, duration_hours: 5, price_min: 600, price_max: 800, image_url: img("impressionism,art"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Современное искусство в ГЭС-2", description: "Главное арт-пространство Москвы", category: "exhibition", venue_name: "Дом культуры ГЭС-2", address: "Болотная наб., 15", district: "Якиманка", hours_from_now: -4, duration_hours: 6, price_min: 0, price_max: 500, image_url: img("contemporary,art"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Винтаж кино-плакатов в Гараже", description: "Кино, дизайн, графика", category: "exhibition", venue_name: "Музей Гараж", address: "ул. Крымский Вал, 9с32", district: "Якиманка", hours_from_now: -4, duration_hours: 6, price_min: 400, price_max: 600, image_url: img("vintage,poster"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Фото-выставка Москва вчера и сегодня в МММ", description: "Историческая фотография", category: "exhibition", venue_name: "Музей Москвы", address: "Зубовский б-р, 2", district: "Хамовники", hours_from_now: -5, duration_hours: 4, price_min: 300, price_max: 500, image_url: img("photography,exhibit"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "AI Art в Электротеатре", description: "Цифровое и AI-искусство", category: "exhibition", venue_name: "Электротеатр Станиславский", address: "ул. Тверская, 23", district: "Тверской", hours_from_now: -2, duration_hours: 4, price_min: 500, price_max: 800, image_url: img("ai,digitalart"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Скульптура XX века в Пушкинском", description: "Главные имена прошлого столетия", category: "exhibition", venue_name: "ГМИИ им. Пушкина", address: "ул. Волхонка, 12", district: "Хамовники", hours_from_now: -4, duration_hours: 4, price_min: 500, price_max: 700, image_url: img("sculpture,museum"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Стрит-арт в Артплее", description: "Граффити и муралы", category: "exhibition", venue_name: "Артплей", address: "Нижняя Сыромятническая, 10", district: "Басманный", hours_from_now: -3, duration_hours: 5, price_min: 0, price_max: 400, image_url: img("streetart,graffiti"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Цифровая Москва в Зарядье", description: "Иммерсивная инсталляция", category: "exhibition", venue_name: "Зарядье", address: "ул. Варварка, 6с1", district: "Тверской", hours_from_now: -2, duration_hours: 4, price_min: 700, price_max: 900, image_url: img("digital,installation"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Японская гравюра в Музее Востока", description: "Гравюры укиё-э", category: "exhibition", venue_name: "Музей Востока", address: "Никитский бульвар, 12А", district: "Пресненский", hours_from_now: -5, duration_hours: 4, price_min: 400, price_max: 600, image_url: img("ukiyoe,japan"), external_url: "https://t.me/msk_tonight_bot" },
-  { title: "Кибер-арт в Винзаводе", description: "Новые медиа и VR", category: "exhibition", venue_name: "Винзавод", address: "4-й Сыромятнический пер., 1с6", district: "Басманный", hours_from_now: -2, duration_hours: 5, price_min: 600, price_max: 1000, image_url: img("vr,art"), external_url: "https://t.me/msk_tonight_bot" },
+  { 
+    title: "Ван Гог. Ожившие полотна", 
+    description: "Иммерсивная выставка", 
+    category: "exhibition", 
+    venue_name: "Арт-пространство", 
+    address: "ул. Пресненская наб., 2", 
+    district: "Пресненский", 
+    start_time: inHours(-2), 
+    duration_hours: 4, 
+    price_min: 800, 
+    price_max: 1500, 
+    image_url: img("1514194111488-47e8a69286aa"), 
+    external_url: "https://t.me/msk_tonight_bot",
+    lat: 55.7489,
+    lng: 37.5394
+  },
+  { 
+    title: "Сокровища Египта в ГМИИ", 
+    description: "Уникальная коллекция артефактов", 
+    category: "exhibition", 
+    venue_name: "ГМИИ им. Пушкина", 
+    address: "ул. Волхонка, 12", 
+    district: "Хамовники", 
+    start_time: inHours(-3), 
+    duration_hours: 3, 
+    price_min: 600, 
+    price_max: 1000, 
+    image_url: img("1503095628777-9a9d6a951ef3"), 
+    external_url: "https://t.me/msk_tonight_bot",
+    lat: 55.7453,
+    lng: 37.6003
+  },
 ];

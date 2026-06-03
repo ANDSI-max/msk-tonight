@@ -35,6 +35,7 @@ function initApp() {
     today: document.getElementById("tab-today"),
     plan: document.getElementById("tab-plan"),
     bookings: document.getElementById("tab-bookings"),
+    map: document.getElementById("tab-map"),
     profile: document.getElementById("tab-profile"),
   };
   const navBtns = document.querySelectorAll(".nav-btn");
@@ -51,6 +52,7 @@ function initApp() {
 
       if (tabName === "plan") loadPlan();
       if (tabName === "bookings") loadBookings();
+      if (tabName === "map") loadMap();
       if (tabName === "profile") loadProfile();
       if (tabName === "today") {
         currentCardIndex = 0;
@@ -619,6 +621,72 @@ function initApp() {
         }
       }
     });
+  }
+
+  
+  // КАРТА
+  async function loadMap() {
+    const container = document.getElementById("map-container");
+    const dateFilter = document.getElementById("filter-map-date");
+    if (!container) return;
+    
+    container.innerHTML = '<div class="loading">Загружаю карту...</div>';
+    
+    try {
+      const dateValue = dateFilter ? dateFilter.value : "today";
+      const dateParam = dateValue === "today" ? new Date().toISOString().split('T')[0] : "";
+      
+      const data = await apiGet("/api/map" + (dateParam ? "?date=" + dateParam : ""));
+      log("📦 Map data:", data);
+      
+      if (data.ok && data.events && data.events.length > 0) {
+        renderMap(data.events, container);
+      } else {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-emoji">🗺️</div>
+            <div>Нет событий на карте</div>
+          </div>
+        `;
+      }
+    } catch (e) {
+      log("❌ Map error:", e);
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-emoji">❌</div>
+          <div>Ошибка загрузки карты</div>
+        </div>
+      `;
+    }
+  }
+  
+  function renderMap(events, container) {
+    // Используем статичную карту с маркерами (без внешних библиотек)
+    const centerLat = 55.7558;
+    const centerLng = 37.6173;
+    const zoom = 11;
+    
+    // Создаём интерактивную карту через OpenStreetMap iframe
+    let markers = events.map(e => {
+      const color = e.category === "concert" ? "🎵" : 
+                   e.category === "theater" ? "🎭" :
+                   e.category === "bar" ? "🍺" :
+                   e.category === "club" ? "💃" : "🎨";
+      return `${color} ${e.title}`;
+    }).join('<br>');
+    
+    container.innerHTML = `
+      <div style="width:100%;height:100%;position:relative;">
+        <iframe 
+          src="https://www.openstreetmap.org/export/embed.html?bbox=37.3,55.5,37.9,55.9&amp;layer=mapnik"
+          style="width:100%;height:100%;border:none;"
+        ></iframe>
+        <div style="position:absolute;bottom:10px;left:10px;right:10px;background:rgba(255,255,255,0.95);padding:15px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.2);max-height:200px;overflow-y:auto;">
+          <div style="font-weight:600;margin-bottom:10px;">📍 События (${events.length})</div>
+          <div style="font-size:13px;line-height:1.6;">${markers}</div>
+        </div>
+      </div>
+    `;
   }
 
   // Профиль

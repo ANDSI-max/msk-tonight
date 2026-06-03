@@ -139,14 +139,14 @@ router.get("/profile", authMiddleware(false), (req: AuthedRequest, res) => {
 });
 
 
-// GET /api/bookings - список бронирований
+// GET /api/bookings - пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 router.get("/bookings", authMiddleware(false), (req: AuthedRequest, res) => {
   const bookings = BookingModel.list(req.userId!);
   const stats = BookingModel.stats(req.userId!);
   res.json({ ok: true, bookings, stats });
 });
 
-// POST /api/bookings/create - создать бронирование
+// POST /api/bookings/create - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 router.post("/bookings/create", authMiddleware(false), (req: AuthedRequest, res) => {
   const { event_id, ticket_count } = req.body || {};
   if (!event_id) return res.status(400).json({ error: "event_id required" });
@@ -159,7 +159,7 @@ router.post("/bookings/create", authMiddleware(false), (req: AuthedRequest, res)
   
   const booking = BookingModel.create(req.userId!, Number(event_id), tickets, totalPrice, event.external_url || undefined);
   
-  // Даём значок за первое бронирование
+  // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
   const stats = BookingModel.stats(req.userId!);
   if (stats.totalBookings === 1) {
     BadgeModel.earn(req.userId!, "first_booking");
@@ -168,7 +168,7 @@ router.post("/bookings/create", authMiddleware(false), (req: AuthedRequest, res)
   res.json({ ok: true, booking });
 });
 
-// POST /api/bookings/cancel - отменить бронирование
+// POST /api/bookings/cancel - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 router.post("/bookings/cancel", authMiddleware(false), (req: AuthedRequest, res) => {
   const { booking_id } = req.body || {};
   if (!booking_id) return res.status(400).json({ error: "booking_id required" });
@@ -177,17 +177,59 @@ router.post("/bookings/cancel", authMiddleware(false), (req: AuthedRequest, res)
   res.json({ ok: true });
 });
 
-// POST /api/bookings/use - отметить использование
+// POST /api/bookings/use - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 router.post("/bookings/use", authMiddleware(false), (req: AuthedRequest, res) => {
   const { booking_id } = req.body || {};
   if (!booking_id) return res.status(400).json({ error: "booking_id required" });
   
   BookingModel.markUsed(req.userId!, Number(booking_id));
   
-  // Обновляем streak и значки
+  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ streak пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
   const { streak } = UserModel.updateStreak(req.userId!);
   const earned = recalcBadges(req.userId!, streak);
   
   res.json({ ok: true, streak, earned });
 });
+
+// GET /api/map - СЃРѕР±С‹С‚РёСЏ РЅР° РєР°СЂС‚Рµ СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё
+router.get("/map", authMiddleware(true), (req: AuthedRequest, res) => {
+  const { date } = req.query as Record<string, string>;
+  
+  // Р•СЃР»Рё РґР°С‚Р° РЅРµ СѓРєР°Р·Р°РЅР°, Р±РµСЂС‘Рј СЃРµРіРѕРґРЅСЏ
+  let filterDate = new Date();
+  if (date) {
+    filterDate = new Date(date);
+  }
+  
+  const todayStart = new Date(filterDate);
+  todayStart.setHours(0, 0, 0, 0);
+  const todayEnd = new Date(filterDate);
+  todayEnd.setHours(23, 59, 59, 999);
+  
+  const events = EventModel.list({
+    limit: 100,
+  }) as any[];
+  
+  // Р¤РёР»СЊС‚СЂСѓРµРј СЃРѕР±С‹С‚РёСЏ РїРѕ РґР°С‚Рµ (РµСЃР»Рё РµСЃС‚СЊ start_time)
+  const filtered = events.filter(e => {
+    if (!e.start_time) return true;
+    const eventDate = new Date(e.start_time);
+    return eventDate >= todayStart && eventDate <= todayEnd;
+  });
+  
+  // Р’РѕР·РІСЂР°С‰Р°РµРј С‚РѕР»СЊРєРѕ СЃРѕР±С‹С‚РёСЏ СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё
+  const withCoords = filtered.filter(e => e.lat && e.lng).map(e => ({
+    id: e.id,
+    title: e.title,
+    category: e.category,
+    price_min: e.price_min,
+    start_time: e.start_time,
+    lat: e.lat,
+    lng: e.lng,
+    venue_name: e.venue_name,
+  }));
+  
+  res.json({ ok: true, events: withCoords, date: filterDate.toISOString() });
+});
+
 export default router;
