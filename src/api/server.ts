@@ -18,8 +18,20 @@ app.get("/health", (_req, res) => {
 });
 
 // Middleware для UTF-8 кодировки
+// Middleware для UTF-8 кодировки - ДО всех роутов
 app.use((req, res, next) => {
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  next();
+});
+
+// Для JSON ответов тоже ставим UTF-8
+app.use((req, res, next) => {
+  const originalJson = res.json.bind(res);
+  res.json = (data) => {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    return originalJson(data);
+  };
   next();
 });
 
