@@ -45,7 +45,10 @@ function initApp() {
     bookings: document.getElementById("tab-bookings"),
     profile: document.getElementById("tab-profile"),
     map: document.getElementById("tab-map"),
-  };
+  }
+  // Фильтры - объявляем в начале
+  const filterCategory = document.getElementById("filter-category");
+  const filterDistrict = document.getElementById("filter-district");;
   const navBtns = document.querySelectorAll(".nav-btn");
 
   navBtns.forEach((btn) => {
