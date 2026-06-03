@@ -1,7 +1,7 @@
 ﻿/**
 * МСК.Tonight - Frontend Logic
+* Updated: UX Refactor (Integrated Map & Tabs)
 */
-// 1. Глобальное состояние
 const state = {
 events: [],
 plan: [],
@@ -10,19 +10,13 @@ currentCardIndex: 0
 };
 const API_BASE = window.location.origin;
 const HEADERS = { "Content-Type": "application/json" };
-// Инициализация Telegram WebApp
 const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
-// --- Утилиты ---
-function log(msg) { console.log(msg); }
+// --- Utils ---
 function escapeHtml(str) {
 if (!str) return "";
-return String(str)
-.replace(/&/g, "&amp;")
-.replace(/</g, "&lt;")
-.replace(/>/g, "&gt;")
-.replace(/"/g, "&quot;");
+return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 function formatPrice(min, max) {
 if (!min && !max) return "Бесплатно";
@@ -31,13 +25,7 @@ if (!min) return `до ${max}₽`;
 return `${min}–${max}₽`;
 }
 function translateCategory(cat) {
-const map = {
-concert: "Концерт",
-theater: "Театр",
-bar: "Бар",
-club: "Клуб",
-exhibition: "Выставка",
-};
+const map = { concert: "Концерт", theater: "Театр", bar: "Бар", club: "Клуб", exhibition: "Выставка" };
 return map[cat] || cat;
 }
 function getInitData() {
@@ -45,7 +33,7 @@ if (tg.initData) return tg.initData;
 const urlParams = new URLSearchParams(window.location.search);
 return urlParams.get("tgInitData") || null;
 }
-// --- API Слои ---
+// --- API ---
 async function apiGet(path) {
 try {
 const headers = { ...HEADERS };
@@ -76,7 +64,7 @@ console.error("API POST error:", e, "path:", path);
 throw e;
 }
 }
-// --- Логика Интерфейса ---
+// --- Interface Logic ---
 async function loadEvents() {
 const container = document.getElementById("events-container");
 if (!container) return;
@@ -101,6 +89,31 @@ container.innerHTML = '<div class="empty-state">Ошибка загрузки</d
 container.innerHTML = '<div class="empty-state">Нет соединения</div>';
 }
 }
+function loadMap() {
+const container = document.getElementById("map-container");
+if (!container) return;
+container.innerHTML = '<div class="loading">Загружаю карту...</div>';
+apiGet("/api/map").then(data => {
+if (data.ok && data.events && data.events.length > 0) {
+const markers = data.events.map(e => {
+const color = e.category === "concert" ? "🎵" : e.category === "theater" ? "🎭" : e.category === "bar" ? "🍺" : "🎨";
+return `${color} ${e.title}`;
+}).join("<br>");
+container.innerHTML = `
+<div style="width:100%;height:100%;position:relative;">
+<iframe src="https://www.openstreetmap.org/export/embed.html?bbox=37.3,55.5,37.9,55.9&layer=mapnik" style="width:100%;height:100%;border:none;"></iframe>
+<div style="position:absolute;bottom:10px;left:10px;right:10px;background:rgba(255,255,255,0.95);padding:15px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.2);max-height:120px;overflow-y:auto;font-size:12px;">
+<div style="font-weight:600;margin-bottom:5px;">📍 События рядом:</div>
+<div>${markers}</div>
+</div>
+</div>`;
+} else {
+container.innerHTML = '<div class="empty-state">Карта временно недоступна</div>';
+}
+}).catch(() => {
+container.innerHTML = '<div class="empty-state">Ошибка карты</div>';
+});
+}
 function renderCards() {
 const container = document.getElementById("events-container");
 if (!container) return;
@@ -114,10 +127,7 @@ const card = createCard(event, idx === 0);
 if (idx === 0) container.appendChild(card);
 });
 if (state.events.length > state.currentCardIndex) {
-tg.MainButton.setParams({
-text: "Пропустить событие",
-isEnabled: true
-});
+tg.MainButton.setParams({ text: "Пропустить событие", isEnabled: true });
 tg.MainButton.show();
 tg.MainButton.onClick(onSkip);
 } else {
@@ -142,8 +152,7 @@ card.innerHTML = `
 <button class="btn btn-primary btn-book">🎫 Билет</button>
 <button class="btn btn-outline btn-like">❤️</button>
 </div>
-</div>
-`;
+</div>`;
 if (isTop) setupSwipe(card, event);
 card.querySelector(".btn-dislike").onclick = () => swipe(card, event, "left");
 card.querySelector(".btn-like").onclick = () => swipe(card, event, "right");
@@ -152,9 +161,7 @@ card.querySelector(".btn-book").onclick = () => bookEvent(event.id);
 return card;
 }
 function setupSwipe(card, event) {
-let touchStartX = 0;
-let touchCurrentX = 0;
-let isSwiping = false;
+let touchStartX = 0, touchCurrentX = 0, isSwiping = false;
 const onDown = (e) => {
 isSwiping = false;
 touchStartX = e.type.includes("mouse") ? e.clientX : e.touches[0].clientX;
@@ -165,26 +172,20 @@ if (touchStartX === 0) return;
 const x = e.type.includes("mouse") ? e.clientX : e.touches[0].clientX;
 touchCurrentX = x - touchStartX;
 if (Math.abs(touchCurrentX) > 5) isSwiping = true;
-const rotate = touchCurrentX * 0.05;
-card.style.transform = `translateX(${touchCurrentX}px) rotate(${rotate}deg)`;
+card.style.transform = `translateX(${touchCurrentX}px) rotate(${touchCurrentX * 0.05}deg)`;
 };
 const onEnd = () => {
 if (!isSwiping) {
 card.style.transition = "transform 0.3s";
 card.style.transform = "";
-touchStartX = 0;
-touchCurrentX = 0;
+touchStartX = 0; touchCurrentX = 0;
 return;
 }
 const threshold = 80;
 if (touchCurrentX > threshold) swipe(card, event, "right");
 else if (touchCurrentX < -threshold) swipe(card, event, "left");
-else {
-card.style.transition = "transform 0.3s";
-card.style.transform = "";
-}
-touchStartX = 0;
-touchCurrentX = 0;
+else { card.style.transition = "transform 0.3s"; card.style.transform = ""; }
+touchStartX = 0; touchCurrentX = 0;
 };
 card.addEventListener("mousedown", onDown);
 card.addEventListener("touchstart", onDown, { passive: true });
@@ -206,9 +207,7 @@ const nextEvent = state.events[state.currentCardIndex];
 if (nextEvent) {
 const container = document.getElementById("events-container");
 container.appendChild(createCard(nextEvent, true));
-} else {
-renderCards();
-}
+} else { renderCards(); }
 }, 300);
 }
 function onSkip() {
@@ -231,10 +230,7 @@ if (!container) return;
 container.innerHTML = '<div class="loading">Загружаю план...</div>';
 try {
 const data = await apiGet("/api/plan");
-if (data.ok) {
-state.plan = data.plan || [];
-renderPlan();
-}
+if (data.ok) { state.plan = data.plan || []; renderPlan(); }
 } catch (e) { container.innerHTML = '<div class="empty-state">Нет соединения</div>'; }
 }
 function renderPlan() {
@@ -246,8 +242,7 @@ return;
 }
 container.innerHTML = state.plan.map((item) => {
 const eventId = item.event_id || item.id;
-return `
-<div class="plan-item">
+return `<div class="plan-item">
 <img class="plan-item-image" src="${item.image_url || ''}" onerror="this.src='https://via.placeholder.com/800x600?text=No+Image'" />
 <div class="plan-item-content">
 <div class="plan-item-title">${escapeHtml(item.title)}</div>
@@ -279,17 +274,10 @@ loadPlan();
 } catch (e) { alert("❌ Ошибка при удалении"); }
 }
 async function bookEvent(eventId) {
-// Используем state.events вместо events
 const event = state.events.find(e => e.id === eventId);
-if (!event) {
-console.error("Event not found in state");
-return;
-}
+if (!event) return;
 const price = event.price_min || 0;
-// Используем стандартный alert, так как WebApp.showPopup может не поддерживаться
-if (!confirm(`🎫 Бронирование\n\n${event.title}\n\nБилетов: 1\nК оплате: ${price}₽`)) {
-return;
-}
+if (!confirm(`🎫 Бронирование\n\n${event.title}\n\nБилетов: 1\nК оплате: ${price}₽`)) return;
 try {
 const data = await apiPost("/api/bookings/create", { event_id: eventId, ticket_count: 1 });
 if (data && data.ok) {
@@ -297,9 +285,7 @@ tg.HapticFeedback?.notificationOccurred("success");
 alert(`✅ Успешно!\n\nБронь: ${data.booking.booking_reference}\nБилет доступен во вкладке "Билеты"`);
 loadBookings();
 }
-} catch (e) {
-alert("❌ Ошибка: " + (e.message || "Неизвестная ошибка"));
-}
+} catch (e) { alert("❌ Ошибка: " + (e.message || "Неизвестная ошибка")); }
 }
 async function loadBookings() {
 const container = document.getElementById("bookings-container");
@@ -317,13 +303,10 @@ container.innerHTML = bookings.map(b => `
 <div class="booking-status">${b.status === "active" ? "✅ Активен" : "❌ Использован"}</div>
 <div class="booking-title">${escapeHtml(b.event_title)}</div>
 <div class="booking-ref">${b.booking_reference}</div>
-</div>
-`).join("");
+</div>`).join("");
 }
 }
-} catch (e) {
-container.innerHTML = '<div class="empty-state">Нет соединения</div>';
-}
+} catch (e) { container.innerHTML = '<div class="empty-state">Нет соединения</div>'; }
 }
 async function loadProfile() {
 try {
@@ -354,7 +337,6 @@ today: document.getElementById("tab-today"),
 plan: document.getElementById("tab-plan"),
 bookings: document.getElementById("tab-bookings"),
 profile: document.getElementById("tab-profile"),
-map: document.getElementById("tab-map"),
 };
 navBtns.forEach((btn) => {
 btn.addEventListener("click", () => {
@@ -366,7 +348,7 @@ if (tabs[tabName]) tabs[tabName].classList.add("active");
 if (tabName === "plan") loadPlan();
 if (tabName === "bookings") loadBookings();
 if (tabName === "profile") loadProfile();
-if (tabName === "today") { state.currentCardIndex = 0; renderCards(); }
+if (tabName === "today") { state.currentCardIndex = 0; loadEvents(); loadMap(); }
 });
 });
 const todayBtn = document.querySelector('.nav-btn[data-tab="today"]');
@@ -375,5 +357,6 @@ todayBtn.classList.add("active");
 if (tabs.today) tabs.today.classList.add("active");
 }
 loadEvents();
+loadMap();
 }
 document.addEventListener('DOMContentLoaded', initApp);
