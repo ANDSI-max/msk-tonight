@@ -580,30 +580,21 @@ function initApp() {
     
     const price = event.price_min || 0;
     
-    alert(
-      title: "🎫 Бронирование",
-      message: `${event.title}\n\nБилетов: 1\nК оплате: ${price}₽`,
-      buttons: [
-        { type: "ok", text: "Забронировать" },
-        { type: "cancel", text: "Отмена" }
-      ]
-    }, async (btn) => {
-      if (btn === "ok") {
-        try {
-          const data = await apiPost("/api/bookings/create", { event_id: eventId, ticket_count: 1 });
-          if (data.ok) {
-            tg.HapticFeedback?.notificationOccurred("success");
-            alert(
-              title: "✅ Успешно!",
-              message: `Бронь: ${data.booking.booking_reference}\nБилет доступен во вкладке "Билеты"`,
-              buttons: [{ type: "ok" }]
-            });
-          }
-        } catch (e) {
-          alert("❌ Ошибка: " + e.message);
-        }
+    if (!confirm(`🎫 Бронирование\n\n${event.title}\n\nБилетов: 1\nК оплате: ${price}₽`)) {
+      return;
+    }
+    
+    try {
+      const data = await apiPost("/api/bookings/create", { event_id: eventId, ticket_count: 1 });
+      if (data && data.ok) {
+        tg.HapticFeedback?.notificationOccurred("success");
+        alert(`✅ Успешно!\n\nБронь: ${data.booking.booking_reference}\nБилет доступен во вкладке "Билеты"`);
+        loadBookings();
       }
-    });
+    } catch (e) {
+      alert("❌ Ошибка: " + (e.message || "Неизвестная ошибка"));
+    }
+  }
   }
 
   async function useBooking(bookingId) {
