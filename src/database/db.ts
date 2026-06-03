@@ -10,7 +10,7 @@ const db = new Database(dbPath);
 db.pragma("journal_mode = WAL");
 db.pragma("foreign_keys = ON");
 
-db.exec(\
+const sql = `
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     telegram_id INTEGER UNIQUE NOT NULL,
@@ -91,6 +91,8 @@ db.exec(\
   CREATE INDEX IF NOT EXISTS idx_events_start ON events(start_time);
   CREATE INDEX IF NOT EXISTS idx_plans_user ON user_plans(user_id);
   CREATE INDEX IF NOT EXISTS idx_swipes_user ON swipes(user_id);
-\);
+`;
+
+db.exec(sql);
 
 export default db;
