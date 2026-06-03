@@ -144,9 +144,22 @@
   </script>
   
   <script>
-  console.log("=== HTML loaded ===");
-  console.log("tab-today exists:", !!document.getElementById("tab-today"));
-  console.log("nav-btns count:", document.querySelectorAll(".nav-btn").length);
+  window.addEventListener("DOMContentLoaded", function() {
+    var tabs = document.querySelectorAll(".tab");
+    var msg = "Вкладок всего: " + tabs.length + "\\n";
+    for (var i = 0; i < tabs.length; i++) {
+      msg += (i+1) + ". " + tabs[i].id + " - display: " + tabs[i].style.display + "\\n";
+    }
+    // Показываем сообщение об ошибке если все вкладки видны
+    var visibleCount = 0;
+    for (var i = 0; i < tabs.length; i++) {
+      if (tabs[i].classList.contains("active")) visibleCount++;
+    }
+    msg += "Active вкладок: " + visibleCount;
+    if (visibleCount !== 1) {
+      alert("⚠️ Проблема: " + msg);
+    }
+  });
 </script>
   <script src="app.js"></script>
 </body>
