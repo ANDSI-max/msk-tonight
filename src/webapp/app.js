@@ -67,6 +67,16 @@ function initApp() {
         renderCards();
       }
     });
+
+  // Активируем вкладку "Сегодня" при загрузке
+  const todayBtn = document.querySelector('.nav-btn[data-tab="today"]');
+  if (todayBtn) {
+    todayBtn.classList.add("active");
+    if (tabs.today) tabs.today.classList.add("active");
+  }
+  
+  // Загружаем события
+  loadEvents();
   });
 
   // Фильтры - с проверкой на null
