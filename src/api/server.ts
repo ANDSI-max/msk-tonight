@@ -37,14 +37,13 @@ app.use((req, res, next) => {
 app.use('/api', routes);
 
 // ============================================
-// 2. УЛУЧШЕННЫЙ ОБРАБОТЧИК СТАТИКИ
+// ОБРАБОТЧИК СТАТИКИ - 4 УРОВНЯ ПРОВЕРКИ
 // ============================================
 const possibleStaticPaths = [
-  path.join(process.cwd(), 'src', 'webapp'),
-  path.join(process.cwd(), 'webapp'),
-  path.join(__dirname, '..', 'webapp'),
-  path.join(__dirname, 'webapp'),
-  path.join(process.cwd(), 'dist', 'webapp'),
+  path.join(process.cwd(), 'src', 'webapp'),      // ПРОВЕРЯЕМ ПЕРВЫМ (для ts-node/dev)
+  path.join(process.cwd(), 'webapp'),             // ПРОВЕРЯЕМ ВТОРЫМ
+  path.join(__dirname, '..', 'webapp'),           // ПРОВЕРЯЕМ ТРЕТЬИМ
+  path.join(process.cwd(), 'dist', 'webapp'),     // ПРОВЕРЯЕМ ЧЕТВЕРТЫМ (для prod)
 ];
 
 let staticFolderFound = false;
@@ -64,7 +63,7 @@ if (!staticFolderFound) {
 }
 
 // ============================================
-// 3. ПРИНУДИТЕЛЬНАЯ ОТДАЧА INDEX.HTML
+// ПРИНУДИТЕЛЬНАЯ ОТДАЧА INDEX.HTML
 // ============================================
 app.get('/', (req, res) => {
   for (const p of possibleStaticPaths) {
