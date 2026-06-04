@@ -7,7 +7,6 @@ const dir = path.dirname(dbPath);
 if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
 const db = new Database(dbPath);
-db.pragma("encoding = UTF-8");
 db.pragma("journal_mode = WAL");
 db.pragma("foreign_keys = ON");
 
