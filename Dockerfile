@@ -1,34 +1,29 @@
-﻿FROM node:20-alpine AS builder
-
-RUN apk add --no-cache python3 make g++
-
-WORKDIR /app
-COPY package*.json tsconfig.json ./
-RUN npm install
-
-COPY src ./src
-RUN npm run build
-
-FROM node:20-alpine
-
-RUN apk add --no-cache python3 make g++
+﻿# 1. Сборка приложения
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm install --omit=dev
+RUN npm install
 
+COPY . .
+RUN npm run build
+
+# 2. Финальный образ
+FROM node:20-alpine
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --production
+
+# Копируем скомпилированный бэкенд из builder
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/src/webapp ./src/webapp
 
+# !!! САМОЕ ВАЖНОЕ: Копируем фронтенд из src/webapp прямо в корень /app/webapp
+COPY src/webapp ./webapp
+
+# Указываем переменную окружения для запуска
 ENV NODE_ENV=production
-ENV PORT=3000
-ENV DATABASE_URL=/data/msk_tonight.db
-
-RUN mkdir -p /data
-
 EXPOSE 3000
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
-  CMD wget --quiet --tries=1 --spider http://localhost:3000/health || exit 1
-
+# Запуск скомпилированного сервера
 CMD ["node", "dist/api/server.js"]

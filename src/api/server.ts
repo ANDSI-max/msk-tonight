@@ -17,7 +17,7 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, status: "healthy", time: new Date().toISOString() });
 });
 
-// Middleware для UTF-8 кодировки - ДО всех роутов
+// Middleware для UTF-8 кодировки
 app.use((req, res, next) => {
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -37,43 +37,30 @@ app.use((req, res, next) => {
 app.use('/api', routes);
 
 // ============================================
-// ОБРАБОТЧИК СТАТИКИ - 4 УРОВНЯ ПРОВЕРКИ
+// СТАТИКА - ОДИН ПУТЬ (webapp в корне контейнера)
 // ============================================
-const possibleStaticPaths = [
-  path.join(process.cwd(), 'src', 'webapp'),      // ПРОВЕРЯЕМ ПЕРВЫМ (для ts-node/dev)
-  path.join(process.cwd(), 'webapp'),             // ПРОВЕРЯЕМ ВТОРЫМ
-  path.join(__dirname, '..', 'webapp'),           // ПРОВЕРЯЕМ ТРЕТЬИМ
-  path.join(process.cwd(), 'dist', 'webapp'),     // ПРОВЕРЯЕМ ЧЕТВЕРТЫМ (для prod)
-];
+const webappPath = path.join(process.cwd(), 'webapp');
+console.log(`[server] Статика из: ${webappPath}`);
 
-let staticFolderFound = false;
-console.log('[server] Поиск папки со статикой:');
-possibleStaticPaths.forEach(p => {
-  if (fs.existsSync(p)) {
-    console.log(`✅ Static files found at: ${p}`);
-    app.use(express.static(p));
-    staticFolderFound = true;
-  } else {
-    console.log(`❌ Static path not found: ${p}`);
-  }
-});
-
-if (!staticFolderFound) {
-  console.error("🚨 CRITICAL ERROR: Static folder (webapp) not found anywhere!");
+if (fs.existsSync(webappPath)) {
+  console.log(`✅ Webapp found at: ${webappPath}`);
+  app.use(express.static(webappPath));
+} else {
+  console.error(`❌ Webapp NOT found at: ${webappPath}`);
 }
 
 // ============================================
-// ПРИНУДИТЕЛЬНАЯ ОТДАЧА INDEX.HTML
+// ГЛАВНАЯ СТРАНИЦА
 // ============================================
 app.get('/', (req, res) => {
-  for (const p of possibleStaticPaths) {
-    const fullPath = path.join(p, 'index.html');
-    if (fs.existsSync(fullPath)) {
-      console.log(`[server] Отдаю index.html из: ${fullPath}`);
-      return res.sendFile(fullPath);
-    }
+  const indexPath = path.join(process.cwd(), 'webapp', 'index.html');
+  console.log(`[server] Отдаю index.html из: ${indexPath}`);
+  
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).send("index.html not found");
   }
-  res.status(404).send("index.html not found on server");
 });
 
 const webhookPath = "/webhook";
