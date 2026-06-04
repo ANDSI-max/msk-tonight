@@ -1,4 +1,4 @@
-import db from "../database/db";
+﻿import db from "../database/db";
 import { MOCK_EVENTS } from "./mock-events";
 
 function fmt(d: Date | string): string {
@@ -9,7 +9,7 @@ function fmt(d: Date | string): string {
 export function seedEvents(force = false) {
   const row = db.prepare("SELECT COUNT(*) AS c FROM events").get() as { c: number };
   if (!force && row.c > 0) {
-    console.log("[seed] В БД уже " + row.c + " событий, пропускаю.");
+    console.log("[seed] Р’ Р‘Р” СѓР¶Рµ " + row.c + " СЃРѕР±С‹С‚РёР№, РїСЂРѕРїСѓСЃРєР°СЋ.");
     return;
   }
   if (force) db.exec("DELETE FROM events;");
@@ -25,7 +25,7 @@ export function seedEvents(force = false) {
   });
   
   tx(MOCK_EVENTS);
-  console.log("[seed] Загружено " + MOCK_EVENTS.length + " событий.");
+  console.log("[seed] Р—Р°РіСЂСѓР¶РµРЅРѕ " + MOCK_EVENTS.length + " СЃРѕР±С‹С‚РёР№.");
 }
 
 if (require.main === module) {

@@ -87,7 +87,7 @@ let server: any;
 
 async function start() {
   console.log("[startup] Запуск сервера...");
-  seedEvents();
+  seedEvents(process.env.FORCE_SEED === `"true`");
   await startBot({ port: PORT, webhookPath });
   server = app.listen(PORT, () => {
     console.log(`[server] Слушаю http://localhost:${PORT}`);
