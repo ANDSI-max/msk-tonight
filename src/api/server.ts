@@ -37,37 +37,34 @@ app.use((req, res, next) => {
 app.use('/api', routes);
 
 // ============================================
-// СТАТИКА - ищем в dist/webapp (production) или webapp (dev)
+// СТАТИКА - production: dist/webapp, dev: webapp
 // ============================================
 const isProd = process.env.NODE_ENV === 'production';
+
+// В production: __dirname = /app/dist/api → ../webapp = /app/dist/webapp
+// В dev: process.cwd() = /app → webapp = /app/webapp
 const staticPath = isProd
-  ? path.join(__dirname, '../webapp')  // production: /app/dist/../webapp = /app/webapp
-  : path.join(process.cwd(), 'webapp'); // dev: /app/webapp
+  ? path.join(__dirname, '../webapp')  // /app/dist/../webapp = /app/dist/webapp
+  : path.join(process.cwd(), 'webapp');
 
 console.log(`[server] NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
+console.log(`[server] __dirname: ${__dirname}`);
 console.log(`[server] Статика из: ${staticPath}`);
 
 if (fs.existsSync(staticPath)) {
   console.log(`✅ Webapp found at: ${staticPath}`);
+  const files = fs.readdirSync(staticPath);
+  console.log(`📁 Files: ${files.join(', ')}`);
   app.use(express.static(staticPath));
 } else {
   console.error(`❌ Webapp NOT found at: ${staticPath}`);
-  // Пробуем альтернативный путь
-  const altPath = path.join(process.cwd(), 'dist', 'webapp');
-  if (fs.existsSync(altPath)) {
-    console.log(`✅ Trying alternative: ${altPath}`);
-    app.use(express.static(altPath));
-  }
 }
 
 // ============================================
 // ГЛАВНАЯ СТРАНИЦА
 // ============================================
 app.get('/', (req, res) => {
-  const indexPath = isProd
-    ? path.join(__dirname, '../webapp', 'index.html')
-    : path.join(process.cwd(), 'webapp', 'index.html');
-  
+  const indexPath = path.join(staticPath, 'index.html');
   console.log(`[server] Отдаю index.html из: ${indexPath}`);
   
   if (fs.existsSync(indexPath)) {

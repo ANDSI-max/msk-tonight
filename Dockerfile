@@ -2,14 +2,14 @@
 
 WORKDIR /app
 
-# Устанавливаем ВСЕ зависимости (включая dev для сборки)
+# Устанавливаем ВСЕ зависимости
 COPY package*.json ./
 RUN npm install
 
 # Копируем весь код
 COPY . .
 
-# Собираем: tsc + copy webapp в dist/webapp
+# Собираем: tsc + copy:webapp (webapp → dist/webapp)
 RUN npm run build
 
 # === Финальный образ ===
@@ -21,11 +21,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --production
 
-# Копируем скомпилированный бэкенд
+# Копируем ВСЁ из dist (включая dist/webapp)
 COPY --from=builder /app/dist ./dist
-
-# Копируем webapp (для production)
-COPY --from=builder /app/webapp ./webapp
 
 EXPOSE 3000
 
