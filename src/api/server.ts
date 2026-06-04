@@ -37,45 +37,45 @@ app.use((req, res, next) => {
 app.use('/api', routes);
 
 // ============================================
-// СТАТИКА - webapp и dist/webapp
+// СТАТИКА - ищем в dist/webapp (production) или webapp (dev)
 // ============================================
-const webappPath = path.join(process.cwd(), 'webapp');
-const distWebappPath = path.join(process.cwd(), 'dist', 'webapp');
+const isProd = process.env.NODE_ENV === 'production';
+const staticPath = isProd
+  ? path.join(__dirname, '../webapp')  // production: /app/dist/../webapp = /app/webapp
+  : path.join(process.cwd(), 'webapp'); // dev: /app/webapp
 
-console.log('[server] Настройка статики:');
+console.log(`[server] NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
+console.log(`[server] Статика из: ${staticPath}`);
 
-if (fs.existsSync(webappPath)) {
-  console.log(`✅ Webapp found at: ${webappPath}`);
-  app.use(express.static(webappPath));
+if (fs.existsSync(staticPath)) {
+  console.log(`✅ Webapp found at: ${staticPath}`);
+  app.use(express.static(staticPath));
 } else {
-  console.log(`❌ Webapp not found: ${webappPath}`);
-}
-
-if (fs.existsSync(distWebappPath)) {
-  console.log(`✅ Dist webapp found at: ${distWebappPath}`);
-  app.use(express.static(distWebappPath));
-} else {
-  console.log(`❌ Dist webapp not found: ${distWebappPath}`);
+  console.error(`❌ Webapp NOT found at: ${staticPath}`);
+  // Пробуем альтернативный путь
+  const altPath = path.join(process.cwd(), 'dist', 'webapp');
+  if (fs.existsSync(altPath)) {
+    console.log(`✅ Trying alternative: ${altPath}`);
+    app.use(express.static(altPath));
+  }
 }
 
 // ============================================
 // ГЛАВНАЯ СТРАНИЦА
 // ============================================
 app.get('/', (req, res) => {
-  const paths = [
-    path.join(process.cwd(), 'webapp', 'index.html'),
-    path.join(process.cwd(), 'dist', 'webapp', 'index.html')
-  ];
+  const indexPath = isProd
+    ? path.join(__dirname, '../webapp', 'index.html')
+    : path.join(process.cwd(), 'webapp', 'index.html');
   
-  for (const p of paths) {
-    if (fs.existsSync(p)) {
-      console.log(`[server] Отдаю index.html из: ${p}`);
-      return res.sendFile(p);
-    }
+  console.log(`[server] Отдаю index.html из: ${indexPath}`);
+  
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    console.error(`[server] index.html не найден: ${indexPath}`);
+    res.status(404).send("index.html not found");
   }
-  
-  console.error('[server] index.html не найден');
-  res.status(404).send("index.html not found");
 });
 
 const webhookPath = "/webhook";

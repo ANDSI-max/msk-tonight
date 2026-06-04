@@ -2,14 +2,14 @@
 
 WORKDIR /app
 
-# Копируем и устанавливаем ВСЕ зависимости (включая dev для сборки)
+# Устанавливаем ВСЕ зависимости (включая dev для сборки)
 COPY package*.json ./
 RUN npm install
 
 # Копируем весь код
 COPY . .
 
-# Собираем (tsc + copy:webapp)
+# Собираем: tsc + copy webapp в dist/webapp
 RUN npm run build
 
 # === Финальный образ ===
@@ -17,12 +17,15 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Копируем только production зависимости
+# Production зависимости
 COPY package*.json ./
 RUN npm install --production
 
-# Копируем собранное из builder
+# Копируем скомпилированный бэкенд
 COPY --from=builder /app/dist ./dist
+
+# Копируем webapp (для production)
+COPY --from=builder /app/webapp ./webapp
 
 EXPOSE 3000
 
