@@ -37,44 +37,44 @@ app.use((req, res, next) => {
 app.use('/api', routes);
 
 // ============================================
-// 2. ИСПОЛЬЗУЕМ «ЖЕЛЕЗОБЕТОННЫЙ» ПОДХОД К СТАТИКЕ
+// 2. УЛУЧШЕННЫЙ ОБРАБОТЧИК СТАТИКИ
 // ============================================
-const staticPaths = [
-  path.join(process.cwd(), 'src/webapp'),   // Вариант 1: стандартный путь в src
-  path.join(process.cwd(), 'webapp'),       // Вариант 2: если папка webapp в корне
-  path.join(__dirname, '../webapp'),        // Вариант 3: относительно этого файла
-  path.join(__dirname, 'webapp'),           // Вариант 4: если папка webapp внутри api/
+const possibleStaticPaths = [
+  path.join(process.cwd(), 'src', 'webapp'),
+  path.join(process.cwd(), 'webapp'),
+  path.join(__dirname, '..', 'webapp'),
+  path.join(__dirname, 'webapp'),
+  path.join(process.cwd(), 'dist', 'webapp'),
 ];
 
-console.log('[server] Настройка статических путей:');
-staticPaths.forEach(p => {
-  const exists = fs.existsSync(p);
-  console.log(`  ${exists ? '✅' : '❌'} ${p}`);
-  if (exists) {
+let staticFolderFound = false;
+console.log('[server] Поиск папки со статикой:');
+possibleStaticPaths.forEach(p => {
+  if (fs.existsSync(p)) {
+    console.log(`✅ Static files found at: ${p}`);
     app.use(express.static(p));
-    console.log(`     → Подключено`);
+    staticFolderFound = true;
+  } else {
+    console.log(`❌ Static path not found: ${p}`);
   }
 });
 
+if (!staticFolderFound) {
+  console.error("🚨 CRITICAL ERROR: Static folder (webapp) not found anywhere!");
+}
+
 // ============================================
-// 3. ОБЯЗАТЕЛЬНО: Обработка главной страницы
+// 3. ПРИНУДИТЕЛЬНАЯ ОТДАЧА INDEX.HTML
 // ============================================
 app.get('/', (req, res) => {
-  const pathsToTry = [
-    path.join(process.cwd(), 'src/webapp/index.html'),
-    path.join(process.cwd(), 'webapp/index.html'),
-    path.join(__dirname, '../webapp/index.html')
-  ];
-  
-  for (const p of pathsToTry) {
-    if (fs.existsSync(p)) {
-      console.log(`[server] Отдаю index.html из: ${p}`);
-      return res.sendFile(p);
+  for (const p of possibleStaticPaths) {
+    const fullPath = path.join(p, 'index.html');
+    if (fs.existsSync(fullPath)) {
+      console.log(`[server] Отдаю index.html из: ${fullPath}`);
+      return res.sendFile(fullPath);
     }
   }
-  
-  console.error('[server] ОШИБКА: index.html не найден ни в одном из путей!');
-  res.status(404).send("index.html not found");
+  res.status(404).send("index.html not found on server");
 });
 
 const webhookPath = "/webhook";
