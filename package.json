@@ -1,11 +1,11 @@
-{
+﻿{
   "name": "msk-tonight",
   "version": "1.0.0",
-  "description": "Telegram Mini App для поиска развлечений в Москве",
+  "description": "Telegram Mini App РґР»СЏ РїРѕРёСЃРєР° СЂР°Р·РІР»РµС‡РµРЅРёР№ РІ РњРѕСЃРєРІРµ",
   "main": "dist/api/server.js",
   "scripts": {
     "build": "tsc && npm run copy:webapp",
-    "copy:webapp": "node -e \"const fs=require('fs'),path=require('path');const s='src/webapp',d='dist/webapp';fs.mkdirSync(d,{recursive:true});for(const f of fs.readdirSync(s)){fs.copyFileSync(path.join(s,f),path.join(d,f));}\"",
+    "copy:webapp": "node -e \"const fs=require('fs'),path=require('path');const s='webapp',d='dist/webapp';fs.mkdirSync(d,{recursive:true});for(const f of fs.readdirSync(s)){fs.copyFileSync(path.join(s,f),path.join(d,f));}\"",
     "start": "node dist/api/server.js",
     "dev": "ts-node src/api/server.ts",
     "seed": "ts-node src/data/seed.ts",

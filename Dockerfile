@@ -1,27 +1,17 @@
-﻿# 1. Сборка приложения
-FROM node:20-alpine AS builder
+﻿FROM node:20-alpine
 
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
 
-COPY . .
-RUN npm run build
-
-# 2. Финальный образ
-FROM node:20-alpine
-
-WORKDIR /app
+# Копируем файлы зависимостей
 COPY package*.json ./
 RUN npm install --production
 
-# Копируем скомпилированный бэкенд
-COPY --from=builder /app/dist ./dist
+# Копируем весь исходный код (включая webapp и src)
+COPY . .
 
-# Копируем фронтенд (webapp в корне)
-COPY webapp ./webapp
+# Запускаем сборку (copy:webapp сработает корректно)
+RUN npm run build
 
-ENV NODE_ENV=production
 EXPOSE 3000
 
 CMD ["node", "dist/api/server.js"]
