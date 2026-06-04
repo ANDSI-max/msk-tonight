@@ -17,32 +17,15 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, status: "healthy", time: new Date().toISOString() });
 });
 
-// Middleware для UTF-8 кодировки
-app.use((req, res, next) => {
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  next();
-});
-
-// Для JSON ответов тоже ставим UTF-8
-app.use((req, res, next) => {
-  const originalJson = res.json.bind(res);
-  res.json = (data) => {
-    res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    return originalJson(data);
-  };
-  next();
-});
-
 app.use('/api', routes);
 
 // ============================================
-// СТАТИКА - проверяем НЕСКОЛЬКО путей
+// СТАТИКА - должна быть ДО всех обработчиков
 // ============================================
 const possiblePaths = [
-  path.join(__dirname, '../webapp'),      // production: /app/dist/webapp
-  path.join(process.cwd(), 'webapp'),     // dev: /app/webapp
-  path.join(process.cwd(), 'dist', 'webapp'), // альтернатива
+  path.join(__dirname, '../webapp'),
+  path.join(process.cwd(), 'webapp'),
+  path.join(process.cwd(), 'dist', 'webapp'),
 ];
 
 console.log('========================================');
@@ -56,33 +39,40 @@ let staticPath = '';
 for (const p of possiblePaths) {
   const exists = fs.existsSync(p);
   console.log(`  ${exists ? '✅' : '❌'} ${p}`);
-  if (exists && !staticPath) {
-    staticPath = p;
-  }
+  if (exists && !staticPath) staticPath = p;
 }
 
 if (staticPath) {
   console.log(`[server] Используем: ${staticPath}`);
   const files = fs.readdirSync(staticPath);
   console.log(`[server] Файлы: ${files.join(', ')}`);
-  app.use(express.static(staticPath));
+  
+  // Статика ДО всех обработчиков
+  app.use(express.static(staticPath, {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css; charset=utf-8');
+      } else if (filePath.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+      } else if (filePath.endsWith('.html')) {
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      }
+    }
+  }));
 } else {
-  console.error('[server] ❌ Webapp NOT FOUND anywhere!');
+  console.error('[server] ❌ Webapp NOT FOUND!');
 }
 
 // ============================================
-// ГЛАВНАЯ СТРАНИЦА
+// ГЛАВНАЯ СТРАНИЦА - должна отдавать index.html
 // ============================================
 app.get('/', (req, res) => {
   const indexPath = staticPath ? path.join(staticPath, 'index.html') : null;
-  
-  console.log(`[server] Запрос index.html: ${indexPath}`);
+  console.log(`[server] Запрос / : ${indexPath}`);
   
   if (indexPath && fs.existsSync(indexPath)) {
-    console.log(`[server] ✅ Отдаю: ${indexPath}`);
     res.sendFile(indexPath);
   } else {
-    console.error(`[server] ❌ index.html не найден`);
     res.status(404).send("index.html not found");
   }
 });
