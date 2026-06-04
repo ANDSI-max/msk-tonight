@@ -36,15 +36,46 @@ app.use((req, res, next) => {
 
 app.use('/api', routes);
 
-// Раздача статических файлов (Mini App)
-const webappDir = path.resolve(__dirname, '../../webapp');
-console.log(`[server] Раздаю Mini App из: ${webappDir}`);
+// ============================================
+// 2. ИСПОЛЬЗУЕМ «ЖЕЛЕЗОБЕТОННЫЙ» ПОДХОД К СТАТИКЕ
+// ============================================
+const staticPaths = [
+  path.join(process.cwd(), 'src/webapp'),   // Вариант 1: стандартный путь в src
+  path.join(process.cwd(), 'webapp'),       // Вариант 2: если папка webapp в корне
+  path.join(__dirname, '../webapp'),        // Вариант 3: относительно этого файла
+  path.join(__dirname, 'webapp'),           // Вариант 4: если папка webapp внутри api/
+];
 
-if (fs.existsSync(webappDir)) {
-  app.use(express.static(webappDir));
-} else {
-  console.error(`[server] ОШИБКА: Папка webapp не найдена: ${webappDir}`);
-}
+console.log('[server] Настройка статических путей:');
+staticPaths.forEach(p => {
+  const exists = fs.existsSync(p);
+  console.log(`  ${exists ? '✅' : '❌'} ${p}`);
+  if (exists) {
+    app.use(express.static(p));
+    console.log(`     → Подключено`);
+  }
+});
+
+// ============================================
+// 3. ОБЯЗАТЕЛЬНО: Обработка главной страницы
+// ============================================
+app.get('/', (req, res) => {
+  const pathsToTry = [
+    path.join(process.cwd(), 'src/webapp/index.html'),
+    path.join(process.cwd(), 'webapp/index.html'),
+    path.join(__dirname, '../webapp/index.html')
+  ];
+  
+  for (const p of pathsToTry) {
+    if (fs.existsSync(p)) {
+      console.log(`[server] Отдаю index.html из: ${p}`);
+      return res.sendFile(p);
+    }
+  }
+  
+  console.error('[server] ОШИБКА: index.html не найден ни в одном из путей!');
+  res.status(404).send("index.html not found");
+});
 
 const webhookPath = "/webhook";
 app.post(webhookPath, (req, res) => {
