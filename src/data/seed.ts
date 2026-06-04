@@ -9,7 +9,7 @@ function fmt(d: Date | string): string {
 export function seedEvents(force = false) {
   const row = db.prepare("SELECT COUNT(*) AS c FROM events").get() as { c: number };
   if (!force && row.c > 0) {
-    console.log("[seed] Р’ Р‘Р” СѓР¶Рµ " + row.c + " СЃРѕР±С‹С‚РёР№, РїСЂРѕРїСѓСЃРєР°СЋ.");
+    console.log("[seed] DB has " + row.c + " events, skipping.");
     return;
   }
   if (force) db.exec("DELETE FROM events;");
@@ -25,7 +25,7 @@ export function seedEvents(force = false) {
   });
   
   tx(MOCK_EVENTS);
-  console.log("[seed] Р—Р°РіСЂСѓР¶РµРЅРѕ " + MOCK_EVENTS.length + " СЃРѕР±С‹С‚РёР№.");
+  console.log("[seed] Loaded " + MOCK_EVENTS.length + " events.");
 }
 
 if (require.main === module) {
