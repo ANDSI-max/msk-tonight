@@ -37,40 +37,52 @@ app.use((req, res, next) => {
 app.use('/api', routes);
 
 // ============================================
-// СТАТИКА - production: dist/webapp, dev: webapp
+// СТАТИКА - проверяем НЕСКОЛЬКО путей
 // ============================================
-const isProd = process.env.NODE_ENV === 'production';
+const possiblePaths = [
+  path.join(__dirname, '../webapp'),      // production: /app/dist/webapp
+  path.join(process.cwd(), 'webapp'),     // dev: /app/webapp
+  path.join(process.cwd(), 'dist', 'webapp'), // альтернатива
+];
 
-// В production: __dirname = /app/dist/api → ../webapp = /app/dist/webapp
-// В dev: process.cwd() = /app → webapp = /app/webapp
-const staticPath = isProd
-  ? path.join(__dirname, '../webapp')  // /app/dist/../webapp = /app/dist/webapp
-  : path.join(process.cwd(), 'webapp');
+console.log('========================================');
+console.log('[server] Поиск webapp:');
+console.log(`  NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
+console.log(`  __dirname: ${__dirname}`);
+console.log(`  process.cwd(): ${process.cwd()}`);
+console.log('========================================');
 
-console.log(`[server] NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
-console.log(`[server] __dirname: ${__dirname}`);
-console.log(`[server] Статика из: ${staticPath}`);
+let staticPath = '';
+for (const p of possiblePaths) {
+  const exists = fs.existsSync(p);
+  console.log(`  ${exists ? '✅' : '❌'} ${p}`);
+  if (exists && !staticPath) {
+    staticPath = p;
+  }
+}
 
-if (fs.existsSync(staticPath)) {
-  console.log(`✅ Webapp found at: ${staticPath}`);
+if (staticPath) {
+  console.log(`[server] Используем: ${staticPath}`);
   const files = fs.readdirSync(staticPath);
-  console.log(`📁 Files: ${files.join(', ')}`);
+  console.log(`[server] Файлы: ${files.join(', ')}`);
   app.use(express.static(staticPath));
 } else {
-  console.error(`❌ Webapp NOT found at: ${staticPath}`);
+  console.error('[server] ❌ Webapp NOT FOUND anywhere!');
 }
 
 // ============================================
 // ГЛАВНАЯ СТРАНИЦА
 // ============================================
 app.get('/', (req, res) => {
-  const indexPath = path.join(staticPath, 'index.html');
-  console.log(`[server] Отдаю index.html из: ${indexPath}`);
+  const indexPath = staticPath ? path.join(staticPath, 'index.html') : null;
   
-  if (fs.existsSync(indexPath)) {
+  console.log(`[server] Запрос index.html: ${indexPath}`);
+  
+  if (indexPath && fs.existsSync(indexPath)) {
+    console.log(`[server] ✅ Отдаю: ${indexPath}`);
     res.sendFile(indexPath);
   } else {
-    console.error(`[server] index.html не найден: ${indexPath}`);
+    console.error(`[server] ❌ index.html не найден`);
     res.status(404).send("index.html not found");
   }
 });
