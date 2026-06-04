@@ -15,15 +15,13 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --production
 
-# Копируем скомпилированный бэкенд из builder
+# Копируем скомпилированный бэкенд
 COPY --from=builder /app/dist ./dist
 
-# !!! САМОЕ ВАЖНОЕ: Копируем фронтенд из src/webapp прямо в корень /app/webapp
-COPY src/webapp ./webapp
+# Копируем фронтенд (webapp в корне)
+COPY webapp ./webapp
 
-# Указываем переменную окружения для запуска
 ENV NODE_ENV=production
 EXPOSE 3000
 
-# Запуск скомпилированного сервера
 CMD ["node", "dist/api/server.js"]

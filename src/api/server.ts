@@ -37,7 +37,7 @@ app.use((req, res, next) => {
 app.use('/api', routes);
 
 // ============================================
-// СТАТИКА - ОДИН ПУТЬ (webapp в корне контейнера)
+// СТАТИКА - webapp в корне проекта
 // ============================================
 const webappPath = path.join(process.cwd(), 'webapp');
 console.log(`[server] Статика из: ${webappPath}`);
@@ -54,11 +54,12 @@ if (fs.existsSync(webappPath)) {
 // ============================================
 app.get('/', (req, res) => {
   const indexPath = path.join(process.cwd(), 'webapp', 'index.html');
-  console.log(`[server] Отдаю index.html из: ${indexPath}`);
   
   if (fs.existsSync(indexPath)) {
+    console.log(`[server] Отдаю index.html из: ${indexPath}`);
     res.sendFile(indexPath);
   } else {
+    console.error(`[server] index.html не найден: ${indexPath}`);
     res.status(404).send("index.html not found");
   }
 });
