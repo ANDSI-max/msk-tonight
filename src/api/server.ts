@@ -11,6 +11,12 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
 app.use(cors({ origin: true, credentials: true }));
+
+// UTF-8 middleware для корректного отображения эмодзи и русского текста
+app.use((_req, res, next) => {
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  next();
+});
 app.use(express.json({ limit: "1mb" }));
 
 app.get("/health", (_req, res) => {
