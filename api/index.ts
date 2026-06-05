@@ -1,4 +1,4 @@
-import { initDatabase, getDb, saveDatabase } from "../src/database/db";
+﻿import { initDatabase, getDb, saveDatabase } from "../src/database/db";
 import express from "express";
 import cors from "cors";
 import routes from "./src/api/routes";
@@ -28,8 +28,15 @@ if (fs.existsSync(webappDir)) {
 let initialized = false;
 export default async function handler(req: any, res: any) {
   if (!initialized) {
+    // Удаляем базу если FORCE_SEED
+    const dbPath = path.join(process.cwd(), "msk_tonight.db");
+    if (process.env.FORCE_SEED === "true" && fs.existsSync(dbPath)) {
+      fs.unlinkSync(dbPath);
+      console.log("[db] Deleted old database for fresh seed");
+    }
+    
     await initDatabase();
-    seedEvents();
+    seedEvents(process.env.FORCE_SEED === "true");
     initialized = true;
   }
   
