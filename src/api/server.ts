@@ -1,8 +1,9 @@
-﻿import "dotenv/config";
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import path from "path";
 import fs from "fs";
+import mime from "mime-types";
 import routes from "./routes";
 import { seedEvents } from "../data/seed";
 import { startBot, stopBot, handleWebhookUpdate } from "../bot/bot";
@@ -11,13 +12,13 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 
 app.use(cors({ origin: true, credentials: true }));
+app.use(express.json({ limit: "1mb" }));
 
-// UTF-8 middleware для корректного отображения эмодзи и русского текста
-app.use((_req, res, next) => {
+// Middleware to set charset for API JSON responses
+app.use('/api', (req, res, next) => {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   next();
 });
-app.use(express.json({ limit: "1mb" }));
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true, status: "healthy", time: new Date().toISOString() });
@@ -52,17 +53,13 @@ if (staticPath) {
   console.log(`[server] Используем: ${staticPath}`);
   const files = fs.readdirSync(staticPath);
   console.log(`[server] Файлы: ${files.join(', ')}`);
-  
+
   // Статика ДО всех обработчиков
   app.use(express.static(staticPath, {
     setHeaders: (res, filePath) => {
-      if (filePath.endsWith('.css')) {
-        res.setHeader('Content-Type', 'text/css; charset=utf-8');
-      } else if (filePath.endsWith('.js')) {
-        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
-      } else if (filePath.endsWith('.html')) {
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      }
+      const charset = 'utf-8';
+      const type = mime.lookup(filePath) || 'application/octet-stream';
+      res.setHeader('Content-Type', `${type}; charset=${charset}`);
     }
   }));
 } else {
@@ -75,7 +72,7 @@ if (staticPath) {
 app.get('/', (req, res) => {
   const indexPath = staticPath ? path.join(staticPath, 'index.html') : null;
   console.log(`[server] Запрос / : ${indexPath}`);
-  
+
   if (indexPath && fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
