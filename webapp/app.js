@@ -1,4 +1,4 @@
-﻿/**
+/**
 * МСК.Tonight - Frontend Logic
 * Updated: UX Refactor (Integrated Map & Tabs)
 */
@@ -103,7 +103,7 @@ container.innerHTML = `
 <div style="width:100%;height:100%;position:relative;">
 <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=37.3,55.5,37.9,55.9&layer=mapnik" style="width:100%;height:100%;border:none;"></iframe>
 <div style="position:absolute;bottom:10px;left:10px;right:10px;background:rgba(255,255,255,0.95);padding:15px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.2);max-height:120px;overflow-y:auto;font-size:12px;">
-<div style="font-weight:600;margin-bottom:5px;">?? События рядом:</div>
+<div style="font-weight:600;margin-bottom:5px;">?🗺️ События рядом:</div>
 <div>${markers}</div>
 </div>
 </div>`;
@@ -149,7 +149,7 @@ card.innerHTML = `
 <div class="card-actions">
 <button class="btn btn-outline btn-dislike">?</button>
 <button class="btn btn-secondary btn-add">В план</button>
-<button class="btn btn-primary btn-book">?? Билет</button>
+<button class="btn btn-primary btn-book">🎫 Билет</button>
 <button class="btn btn-outline btn-like">??</button>
 </div>
 </div>`;
@@ -221,8 +221,8 @@ async function addToPlan(eventId) {
 tg.HapticFeedback?.impactOccurred("light");
 try {
 const data = await apiPost("/api/plan/add", { event_id: eventId });
-if (data.ok) alert("? Добавлено в план!");
-} catch (e) { alert("? Ошибка: " + e.message); }
+if (data.ok) alert("✅ Добавлено в план!");
+} catch (e) { alert("❌ Ошибка: " + e.message); }
 }
 async function loadPlan() {
 const container = document.getElementById("plan-container");
@@ -262,30 +262,30 @@ tg.HapticFeedback?.impactOccurred("medium");
 try {
 const data = await apiPost("/api/plan/attend", { event_id: eventId });
 if (data && data.ok) {
-alert(`?? Серия! Твоя серия: ${data.streak} дн.`);
+alert(`?🔥 Серия! Твоя серия: ${data.streak} дн.`);
 loadPlan();
 }
-} catch (e) { alert("? Ошибка: " + (e.message || "Неизвестная ошибка")); }
+} catch (e) { alert("❌ Ошибка: " + (e.message || "Неизвестная ошибка")); }
 }
 async function removeFromPlan(eventId) {
 try {
 await apiPost("/api/plan/remove", { event_id: eventId });
 loadPlan();
-} catch (e) { alert("? Ошибка при удалении"); }
+} catch (e) { alert("❌ Ошибка при удалении"); }
 }
 async function bookEvent(eventId) {
 const event = state.events.find(e => e.id === eventId);
 if (!event) return;
 const price = event.price_min || 0;
-if (!confirm(`?? Бронирование\n\n${event.title}\n\nБилетов: 1\nК оплате: ${price}?`)) return;
+if (!confirm(`?🎫 Бронирование\n\n${event.title}\n\nБилетов: 1\nК оплате: ${price}?`)) return;
 try {
 const data = await apiPost("/api/bookings/create", { event_id: eventId, ticket_count: 1 });
 if (data && data.ok) {
 tg.HapticFeedback?.notificationOccurred("success");
-alert(`? Успешно!\n\nБронь: ${data.booking.booking_reference}\nБилет доступен во вкладке "Билеты"`);
+alert(`🎉 Успешно!\n\nБронь: ${data.booking.booking_reference}\nБилет доступен во вкладке "Билеты"`);
 loadBookings();
 }
-} catch (e) { alert("? Ошибка: " + (e.message || "Неизвестная ошибка")); }
+} catch (e) { alert("❌ Ошибка: " + (e.message || "Неизвестная ошибка")); }
 }
 async function loadBookings() {
 const container = document.getElementById("bookings-container");
@@ -300,7 +300,7 @@ container.innerHTML = '<div class="empty-state">??<div>Нет билетов</di
 } else {
 container.innerHTML = bookings.map(b => `
 <div class="booking-item">
-<div class="booking-status">${b.status === "active" ? "? Активен" : "? Использован"}</div>
+<div class="booking-status">${b.status === "active" ? "✅ Активен" : "🎫 Использован"}</div>
 <div class="booking-title">${escapeHtml(b.event_title)}</div>
 <div class="booking-ref">${b.booking_reference}</div>
 </div>`).join("");
