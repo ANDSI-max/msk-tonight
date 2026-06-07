@@ -9,6 +9,7 @@ if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 const db = new Database(dbPath);
 db.pragma("journal_mode = WAL");
 db.pragma("foreign_keys = ON");
+db.pragma("busy_timeout = 5000"); // Ждём 5 секунд если БД заблокирована
 
 const sql = `
   CREATE TABLE IF NOT EXISTS users (

@@ -1,4 +1,4 @@
-import "dotenv/config";
+﻿import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import path from "path";
@@ -10,6 +10,19 @@ import { startBot, stopBot, handleWebhookUpdate } from "../bot/bot";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
+const REQUEST_TIMEOUT = Number(process.env.REQUEST_TIMEOUT) || 10000; // 10 секунд
+
+// Middleware для ограничения времени запроса
+app.use((req, res, next) => {
+  const timeout = setTimeout(() => {
+    console.warn('[timeout]', req.method, req.path, 'timed out');
+    res.status(503).json({ error: 'request_timeout', message: 'Request took too long' });
+  }, REQUEST_TIMEOUT);
+  
+  res.on('finish', () => clearTimeout(timeout));
+  res.on('close', () => clearTimeout(timeout));
+  next();
+});
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: "1mb" }));
