@@ -20,9 +20,9 @@ return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&
 }
 function formatPrice(min, max) {
 if (!min && !max) return "Бесплатно";
-if (min === max || !max) return `${min}?`;
-if (!min) return `до ${max}?`;
-return `${min}–${max}?`;
+if (min === max || !max) return `${min}`;
+if (!min) return `до ${max}`;
+return `${min}–${max}`;
 }
 function translateCategory(cat) {
 const map = { concert: "Концерт", theater: "Театр", bar: "Бар", club: "Клуб", exhibition: "Выставка" };
@@ -77,7 +77,7 @@ if (filterDistrict && filterDistrict.value) params.set("district", filterDistric
 params.set("mode", "recommended");
 params.set("limit", "50");
 try {
-const data = await apiGet(`/api/events?${params}`);
+const data = await apiGet(`/api/events${params}`);
 if (data.ok) {
 state.events = data.events || [];
 state.currentCardIndex = 0;
@@ -96,14 +96,14 @@ container.innerHTML = '<div class="loading">Загружаю карту...</div>
 apiGet("/api/map").then(data => {
 if (data.ok && data.events && data.events.length > 0) {
 const markers = data.events.map(e => {
-const color = e.category === "concert" ? "??" : e.category === "theater" ? "??" : e.category === "bar" ? "??" : "??";
+const color = e.category === "concert"  "" : e.category === "theater"  "" : e.category === "bar"  "" : "";
 return `${color} ${e.title}`;
 }).join("<br>");
 container.innerHTML = `
 <div style="width:100%;height:100%;position:relative;">
-<iframe src="https://www.openstreetmap.org/export/embed.html?bbox=37.3,55.5,37.9,55.9&layer=mapnik" style="width:100%;height:100%;border:none;"></iframe>
+<iframe src="https://www.openstreetmap.org/export/embed.htmlbbox=37.3,55.5,37.9,55.9&layer=mapnik" style="width:100%;height:100%;border:none;"></iframe>
 <div style="position:absolute;bottom:10px;left:10px;right:10px;background:rgba(255,255,255,0.95);padding:15px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.2);max-height:120px;overflow-y:auto;font-size:12px;">
-<div style="font-weight:600;margin-bottom:5px;">?События рядом:</div>
+<div style="font-weight:600;margin-bottom:5px;">События рядом:</div>
 <div>${markers}</div>
 </div>
 </div>`;
@@ -119,7 +119,7 @@ const container = document.getElementById("events-container");
 if (!container) return;
 container.innerHTML = "";
 if (!state.events || state.events.length === 0) {
-container.innerHTML = '<div class="empty-state">??<div>Событий нет</div></div>';
+container.innerHTML = '<div class="empty-state"><div>Событий нет</div></div>';
 return;
 }
 state.events.slice(state.currentCardIndex).forEach((event, idx) => {
@@ -136,10 +136,10 @@ tg.MainButton.hide();
 }
 function createCard(event, isTop) {
 const card = document.createElement("div");
-card.className = "card" + (isTop ? " swiping" : "");
+card.className = "card" + (isTop  " swiping" : "");
 card.dataset.eventId = event.id;
 card.innerHTML = `
-<img class="card-image" src="${event.image_url || ''}" onerror="this.src='https://placehold.co/800x600/3390ec/ffffff?text=No+Image'" />
+<img class="card-image" src="${event.image_url || ''}" onerror="this.src='https://placehold.co/800x600/3390ec/fffffftext=No+Image'" />
 <div class="card-content">
 <div class="card-title">${escapeHtml(event.title)}</div>
 <div class="card-meta">${translateCategory(event.category)} · ${escapeHtml(event.venue_name || "")}</div>
@@ -147,10 +147,10 @@ card.innerHTML = `
 <div class="card-price">${formatPrice(event.price_min, event.price_max)}</div>
 <div class="card-desc">${escapeHtml(event.description || "")}</div>
 <div class="card-actions">
-<button class="btn btn-outline btn-dislike">?</button>
+<button class="btn btn-outline btn-dislike"></button>
 <button class="btn btn-secondary btn-add">В план</button>
 <button class="btn btn-primary btn-book">Билет</button>
-<button class="btn btn-outline btn-like">??</button>
+<button class="btn btn-outline btn-like"></button>
 </div>
 </div>`;
 if (isTop) setupSwipe(card, event);
@@ -164,12 +164,12 @@ function setupSwipe(card, event) {
 let touchStartX = 0, touchCurrentX = 0, isSwiping = false;
 const onDown = (e) => {
 isSwiping = false;
-touchStartX = e.type.includes("mouse") ? e.clientX : e.touches[0].clientX;
+touchStartX = e.type.includes("mouse")  e.clientX : e.touches[0].clientX;
 card.style.transition = "none";
 };
 const onMove = (e) => {
 if (touchStartX === 0) return;
-const x = e.type.includes("mouse") ? e.clientX : e.touches[0].clientX;
+const x = e.type.includes("mouse")  e.clientX : e.touches[0].clientX;
 touchCurrentX = x - touchStartX;
 if (Math.abs(touchCurrentX) > 5) isSwiping = true;
 card.style.transform = `translateX(${touchCurrentX}px) rotate(${touchCurrentX * 0.05}deg)`;
@@ -195,10 +195,10 @@ document.addEventListener("mouseup", onEnd);
 document.addEventListener("touchend", onEnd);
 }
 async function swipe(card, event, direction) {
-tg.HapticFeedback?.impactOccurred("medium");
-card.classList.add(direction === "left" ? "swipe-left" : "swipe-right");
+tg.HapticFeedback.impactOccurred("medium");
+card.classList.add(direction === "left"  "swipe-left" : "swipe-right");
 try {
-await apiPost("/api/events/swipe", { event_id: event.id, direction: direction === "right" ? "like" : "dislike" });
+await apiPost("/api/events/swipe", { event_id: event.id, direction: direction === "right"  "like" : "dislike" });
 } catch (e) { console.error("Swipe error:", e); }
 setTimeout(() => {
 card.remove();
@@ -218,7 +218,7 @@ if (event) swipe(card, event, "left");
 }
 }
 async function addToPlan(eventId) {
-tg.HapticFeedback?.impactOccurred("light");
+tg.HapticFeedback.impactOccurred("light");
 try {
 const data = await apiPost("/api/plan/add", { event_id: eventId });
 if (data.ok) alert("Добавлено в план!");
@@ -237,13 +237,13 @@ function renderPlan() {
 const container = document.getElementById("plan-container");
 if (!container) return;
 if (!state.plan || state.plan.length === 0) {
-container.innerHTML = '<div class="empty-state">??<div>Пока нет событий в плане</div></div>';
+container.innerHTML = '<div class="empty-state"><div>Пока нет событий в плане</div></div>';
 return;
 }
 container.innerHTML = state.plan.map((item) => {
 const eventId = item.event_id || item.id;
 return `<div class="plan-item">
-<img class="plan-item-image" src="${item.image_url || ''}" onerror="this.src='https://placehold.co/800x600/3390ec/ffffff?text=No+Image'" />
+<img class="plan-item-image" src="${item.image_url || ''}" onerror="this.src='https://placehold.co/800x600/3390ec/fffffftext=No+Image'" />
 <div class="plan-item-content">
 <div class="plan-item-title">${escapeHtml(item.title)}</div>
 <div class="plan-item-meta">${translateCategory(item.category)} · ${escapeHtml(item.venue_name || "")}</div>
@@ -258,11 +258,11 @@ container.querySelectorAll(".btn-attend").forEach(btn => btn.onclick = () => mar
 container.querySelectorAll(".btn-remove").forEach(btn => btn.onclick = () => removeFromPlan(Number(btn.dataset.eventId)));
 }
 async function markAttended(eventId) {
-tg.HapticFeedback?.impactOccurred("medium");
+tg.HapticFeedback.impactOccurred("medium");
 try {
 const data = await apiPost("/api/plan/attend", { event_id: eventId });
 if (data && data.ok) {
-alert(`?Серия! Твоя серия: ${data.streak} дн.`);
+alert(`Серия! Твоя серия: ${data.streak} дн.`);
 loadPlan();
 }
 } catch (e) { alert("Ошибка: " + (e.message || "Неизвестная ошибка")); }
@@ -277,11 +277,11 @@ async function bookEvent(eventId) {
 const event = state.events.find(e => e.id === eventId);
 if (!event) return;
 const price = event.price_min || 0;
-if (!confirm(`?Бронирование\n\n${event.title}\n\nБилетов: 1\nК оплате: ${price}?`)) return;
+if (!confirm(`Бронирование\n\n${event.title}\n\nБилетов: 1\nК оплате: ${price}`)) return;
 try {
 const data = await apiPost("/api/bookings/create", { event_id: eventId, ticket_count: 1 });
 if (data && data.ok) {
-tg.HapticFeedback?.notificationOccurred("success");
+tg.HapticFeedback.notificationOccurred("success");
 alert(`Успешно!\n\nБронь: ${data.booking.booking_reference}\nБилет доступен во вкладке "Билеты"`);
 loadBookings();
 }
@@ -296,11 +296,11 @@ const data = await apiGet("/api/bookings");
 if (data.ok) {
 const bookings = data.bookings || [];
 if (bookings.length === 0) {
-container.innerHTML = '<div class="empty-state">??<div>Нет билетов</div></div>';
+container.innerHTML = '<div class="empty-state"><div>Нет билетов</div></div>';
 } else {
 container.innerHTML = bookings.map(b => `
 <div class="booking-item">
-<div class="booking-status">${b.status === "active" ? "Активен" : "Использован"}</div>
+<div class="booking-status">${b.status === "active"  "Активен" : "Использован"}</div>
 <div class="booking-title">${escapeHtml(b.event_title)}</div>
 <div class="booking-ref">${b.booking_reference}</div>
 </div>`).join("");
@@ -317,9 +317,9 @@ if (data.ok) { state.profile = data; renderProfile(); }
 function renderProfile() {
 if (!state.profile) return;
 const streakEl = document.getElementById("streak-count");
-if (streakEl) streakEl.textContent = state.profile.user?.streak_days || 0;
+if (streakEl) streakEl.textContent = state.profile.user.streak_days || 0;
 const plannedEl = document.getElementById("stat-planned");
-if (plannedEl) plannedEl.textContent = state.profile.stats?.totalPlanned || 0;
+if (plannedEl) plannedEl.textContent = state.profile.stats.totalPlanned || 0;
 }
 function applyTheme() {
 const root = document.documentElement;
