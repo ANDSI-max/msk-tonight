@@ -164,12 +164,12 @@ function setupSwipe(card, event) {
 let touchStartX = 0, touchCurrentX = 0, isSwiping = false;
 const onDown = (e) => {
 isSwiping = false;
-touchStartX = e.type.includes("mouse")  e.clientX : e.touches[0].clientX;
+touchStartX = e.type.includes("mouse") ? e.clientX : e.touches[0].clientX;
 card.style.transition = "none";
 };
 const onMove = (e) => {
 if (touchStartX === 0) return;
-const x = e.type.includes("mouse")  e.clientX : e.touches[0].clientX;
+const x = e.type.includes("mouse") ? e.clientX : e.touches[0].clientX;
 touchCurrentX = x - touchStartX;
 if (Math.abs(touchCurrentX) > 5) isSwiping = true;
 card.style.transform = `translateX(${touchCurrentX}px) rotate(${touchCurrentX * 0.05}deg)`;
