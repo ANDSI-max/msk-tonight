@@ -77,7 +77,7 @@ if (filterDistrict && filterDistrict.value) params.set("district", filterDistric
 params.set("mode", "recommended");
 params.set("limit", "50");
 try {
-const data = await apiGet(`/api/events${params}`);
+const data = await apiGet(`/api/events?${params}`);
 if (data.ok) {
 state.events = data.events || [];
 state.currentCardIndex = 0;
