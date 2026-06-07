@@ -196,9 +196,9 @@ document.addEventListener("touchend", onEnd);
 }
 async function swipe(card, event, direction) {
 tg.HapticFeedback.impactOccurred("medium");
-card.classList.add(direction === "left"  "swipe-left" : "swipe-right");
+card.classList.add(direction === "left" ? "swipe-left" : "swipe-right");
 try {
-await apiPost("/api/events/swipe", { event_id: event.id, direction: direction === "right"  "like" : "dislike" });
+await apiPost("/api/events/swipe", { event_id: event.id, direction: direction === "right" ? "like" : "dislike" });
 } catch (e) { console.error("Swipe error:", e); }
 setTimeout(() => {
 card.remove();
@@ -300,7 +300,7 @@ container.innerHTML = '<div class="empty-state"><div>Нет билетов</div>
 } else {
 container.innerHTML = bookings.map(b => `
 <div class="booking-item">
-<div class="booking-status">${b.status === "active"  "Активен" : "Использован"}</div>
+<div class="booking-status">${b.status === "active" ? "Активен" : "Использован"}</div>
 <div class="booking-title">${escapeHtml(b.event_title)}</div>
 <div class="booking-ref">${b.booking_reference}</div>
 </div>`).join("");
