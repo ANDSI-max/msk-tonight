@@ -136,10 +136,10 @@ tg.MainButton.hide();
 }
 function createCard(event, isTop) {
 const card = document.createElement("div");
-card.className = "card" + (isTop  " swiping" : "");
+card.className = "card" + (isTop ? " swiping" : "");
 card.dataset.eventId = event.id;
 card.innerHTML = `
-<img class="card-image" src="${event.image_url || ''}" onerror="this.src='https://placehold.co/800x600/3390ec/fffffftext=No+Image'" />
+<img class="card-image" src="${event.image_url || ''}" onerror="this.src='https://placehold.co/800x600/3390ec/ffffff?text=No+Image'" />
 <div class="card-content">
 <div class="card-title">${escapeHtml(event.title)}</div>
 <div class="card-meta">${translateCategory(event.category)} · ${escapeHtml(event.venue_name || "")}</div>
@@ -243,7 +243,7 @@ return;
 container.innerHTML = state.plan.map((item) => {
 const eventId = item.event_id || item.id;
 return `<div class="plan-item">
-<img class="plan-item-image" src="${item.image_url || ''}" onerror="this.src='https://placehold.co/800x600/3390ec/fffffftext=No+Image'" />
+<img class="plan-item-image" src="${item.image_url || ''}" onerror="this.src='https://placehold.co/800x600/3390ec/ffffff?text=No+Image'" />
 <div class="plan-item-content">
 <div class="plan-item-title">${escapeHtml(item.title)}</div>
 <div class="plan-item-meta">${translateCategory(item.category)} · ${escapeHtml(item.venue_name || "")}</div>
