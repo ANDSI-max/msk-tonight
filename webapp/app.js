@@ -96,12 +96,12 @@ container.innerHTML = '<div class="loading">Загружаю карту...</div>
 apiGet("/api/map").then(data => {
 if (data.ok && data.events && data.events.length > 0) {
 const markers = data.events.map(e => {
-const color = e.category === "concert"  "" : e.category === "theater"  "" : e.category === "bar"  "" : "";
+const color = "";
 return `${color} ${e.title}`;
 }).join("<br>");
 container.innerHTML = `
 <div style="width:100%;height:100%;position:relative;">
-<iframe src="https://www.openstreetmap.org/export/embed.htmlbbox=37.3,55.5,37.9,55.9&layer=mapnik" style="width:100%;height:100%;border:none;"></iframe>
+<iframe src="https://www.openstreetmap.org/export/embed.html?bbox=37.3,55.5,37.9,55.9&layer=mapnik" style="width:100%;height:100%;border:none;"></iframe>
 <div style="position:absolute;bottom:10px;left:10px;right:10px;background:rgba(255,255,255,0.95);padding:15px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.2);max-height:120px;overflow-y:auto;font-size:12px;">
 <div style="font-weight:600;margin-bottom:5px;">События рядом:</div>
 <div>${markers}</div>
