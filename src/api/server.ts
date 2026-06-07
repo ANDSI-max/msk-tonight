@@ -1,4 +1,4 @@
-﻿import "dotenv/config";
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import path from "path";
@@ -29,6 +29,7 @@ app.use(express.json({ limit: "1mb" }));
 
 // Middleware to set charset for API JSON responses
 app.use('/api', (req, res, next) => {
+  console.log('[api-middleware]', req.method, req.path, req.query);
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   next();
 });
@@ -37,7 +38,9 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, status: "healthy", time: new Date().toISOString() });
 });
 
+// API routes ДО статики
 app.use('/api', routes);
+console.log('[server] API routes registered');
 
 // ============================================
 // СТАТИКА - должна быть ДО всех обработчиков
