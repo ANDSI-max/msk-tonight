@@ -282,7 +282,13 @@ try {
 const data = await apiPost("/api/bookings/create", { event_id: eventId, ticket_count: 1 });
 if (data && data.ok) {
 tg.HapticFeedback.notificationOccurred("success");
-alert(`Успешно!\n\nБронь: ${data.booking.booking_reference}\nБилет доступен во вкладке "Билеты"`);
+const externalUrl = event.external_url || data.booking.external_url;
+  if (externalUrl) {
+    alert(`Успешно!\n\nБронь: ${data.booking.booking_reference}\n\nОткрываю сайт мероприятия...`);
+    tg.openLink(externalUrl);
+  } else {
+    alert(`Успешно!\n\nБронь: ${data.booking.booking_reference}\nБилет доступен во вкладке "Билеты"`);
+  }
 loadBookings();
 }
 } catch (e) { alert("Ошибка: " + (e.message || "Неизвестная ошибка")); }
