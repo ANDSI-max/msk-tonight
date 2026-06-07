@@ -1,5 +1,6 @@
-﻿import db from "../database/db";
+import db from "../database/db";
 import { MOCK_EVENTS } from "./mock-events";
+import { ADDITIONAL_EVENTS } from "./additional-events";
 
 function fmt(d: Date | string): string {
   if (typeof d === "string") return d.slice(0, 19).replace("T", " ");
@@ -24,8 +25,9 @@ export function seedEvents(force = false) {
     }
   });
   
-  tx(MOCK_EVENTS);
-  console.log("[seed] Loaded " + MOCK_EVENTS.length + " events.");
+  const allEvents = [...MOCK_EVENTS, ...ADDITIONAL_EVENTS];
+  tx(allEvents);
+  console.log("[seed] Loaded " + allEvents.length + " events.");
 }
 
 if (require.main === module) {
