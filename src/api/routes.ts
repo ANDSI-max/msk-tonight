@@ -191,27 +191,20 @@ router.post("/bookings/use", authMiddleware(false), (req: AuthedRequest, res) =>
   res.json({ ok: true, streak, earned });
 });
 
-// GET /api/map - события на карте с координатами
-router.get("/map", authMiddleware(true), (req: AuthedRequest, res) => {
-  const { date } = req.query as Record<string, string>;
-  
+  // GET /api/map - события на карте с координатами (неделя 8-14 июня 2026)
+  router.get("/map", authMiddleware(true), (req: AuthedRequest, res) => {
     // Неделя событий: 8-14 июня 2026
     const weekStart = new Date("2026-06-08T00:00:00");
     const weekEnd = new Date("2026-06-14T23:59:59");
-  todayStart.setHours(0, 0, 0, 0);
-  const todayEnd = new Date(filterDate);
-  todayEnd.setHours(23, 59, 59, 999);
-  
-  const events = EventModel.list({
-    limit: 100,
-  }) as any[];
-  
-    // Фильтруем события по неделе (8-14 июня 2026)
-  const filtered = events.filter(e => {
+
+    const events = EventModel.list({ limit: 100 }) as any[];
+
+    // Фильтруем события по неделе
+    const filtered = events.filter(e => {
       if (!e.start_time) return false;
-    const eventDate = new Date(e.start_time);
+      const eventDate = new Date(e.start_time);
       return eventDate >= weekStart && eventDate <= weekEnd;
-  });
+    });
   
   // Возвращаем только события с координатами
   const withCoords = filtered.filter(e => e.lat && e.lng).map(e => ({
@@ -225,7 +218,7 @@ router.get("/map", authMiddleware(true), (req: AuthedRequest, res) => {
     venue_name: e.venue_name,
   }));
   
-  res.json({ ok: true, events: withCoords, date: filterDate.toISOString() });
+  res.json({ ok: true, events: withCoords, date: weekEnd.toISOString() });
 });
 
 export default router;
