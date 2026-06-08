@@ -1,6 +1,5 @@
 import db from "../database/db";
 import { MOCK_EVENTS } from "./mock-events";
-import { ADDITIONAL_EVENTS } from "./additional-events";
 
 function fmt(d: Date | string): string {
   if (typeof d === "string") return d.slice(0, 19).replace("T", " ");
@@ -25,7 +24,7 @@ export function seedEvents(force = false) {
     }
   });
   
-  const allEvents = [...MOCK_EVENTS, ...ADDITIONAL_EVENTS];
+  const allEvents = MOCK_EVENTS;
   tx(allEvents);
   console.log("[seed] Loaded " + allEvents.length + " events.");
 }
