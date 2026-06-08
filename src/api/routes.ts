@@ -195,13 +195,9 @@ router.post("/bookings/use", authMiddleware(false), (req: AuthedRequest, res) =>
 router.get("/map", authMiddleware(true), (req: AuthedRequest, res) => {
   const { date } = req.query as Record<string, string>;
   
-  // Если дата не указана, берём сегодня
-  let filterDate = new Date();
-  if (date) {
-    filterDate = new Date(date);
-  }
-  
-  const todayStart = new Date(filterDate);
+    // Неделя событий: 8-14 июня 2026
+    const weekStart = new Date("2026-06-08T00:00:00");
+    const weekEnd = new Date("2026-06-14T23:59:59");
   todayStart.setHours(0, 0, 0, 0);
   const todayEnd = new Date(filterDate);
   todayEnd.setHours(23, 59, 59, 999);
@@ -210,11 +206,11 @@ router.get("/map", authMiddleware(true), (req: AuthedRequest, res) => {
     limit: 100,
   }) as any[];
   
-  // Фильтруем события по дате (если есть start_time)
+    // Фильтруем события по неделе (8-14 июня 2026)
   const filtered = events.filter(e => {
-    if (!e.start_time) return true;
+      if (!e.start_time) return false;
     const eventDate = new Date(e.start_time);
-    return eventDate >= todayStart && eventDate <= todayEnd;
+      return eventDate >= weekStart && eventDate <= weekEnd;
   });
   
   // Возвращаем только события с координатами
