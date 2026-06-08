@@ -1,4 +1,4 @@
-﻿export type MockCategory =
+export type MockCategory =
   | "concert"
   | "theater"
   | "bar"
@@ -46,7 +46,7 @@ export const MOCK_EVENTS: MockEvent[] = [
     price_min: 500, 
     price_max: 1000, 
     image_url: img("exhibition"), 
-    external_url: "https://t.me/msk_tonight_bot",
+    external_url: null,
     lat: 55.7457,
     lng: 37.6043
   },
@@ -62,7 +62,7 @@ export const MOCK_EVENTS: MockEvent[] = [
     price_min: 800, 
     price_max: 1500, 
     image_url: img("exhibition"), 
-    external_url: "https://t.me/msk_tonight_bot",
+    external_url: null,
     lat: 55.7078,
     lng: 37.5887
   },
@@ -78,7 +78,7 @@ export const MOCK_EVENTS: MockEvent[] = [
     price_min: 3500, 
     price_max: 12000, 
     image_url: img("concert"), 
-    external_url: "https://t.me/msk_tonight_bot",
+    external_url: null,
     lat: 55.8194,
     lng: 37.4028
   },
@@ -94,7 +94,7 @@ export const MOCK_EVENTS: MockEvent[] = [
     price_min: 2000, 
     price_max: 8000, 
     image_url: img("concert"), 
-    external_url: "https://t.me/msk_tonight_bot",
+    external_url: null,
     lat: 55.7507,
     lng: 37.6281
   },
@@ -110,7 +110,7 @@ export const MOCK_EVENTS: MockEvent[] = [
     price_min: 2500, 
     price_max: 10000, 
     image_url: img("theater"), 
-    external_url: "https://t.me/msk_tonight_bot",
+    external_url: null,
     lat: 55.7587,
     lng: 37.6156
   },
@@ -126,7 +126,7 @@ export const MOCK_EVENTS: MockEvent[] = [
     price_min: 1500, 
     price_max: 6000, 
     image_url: img("theater"), 
-    external_url: "https://t.me/msk_tonight_bot",
+    external_url: null,
     lat: 55.7635,
     lng: 37.6445
   },
@@ -142,7 +142,7 @@ export const MOCK_EVENTS: MockEvent[] = [
     price_min: 1200, 
     price_max: 5000, 
     image_url: img("theater"), 
-    external_url: "https://t.me/msk_tonight_bot",
+    external_url: null,
     lat: 55.7463,
     lng: 37.6514
   },
@@ -158,7 +158,7 @@ export const MOCK_EVENTS: MockEvent[] = [
     price_min: 5000, 
     price_max: 25000, 
     image_url: img("theater"), 
-    external_url: "https://t.me/msk_tonight_bot",
+    external_url: null,
     lat: 55.7597,
     lng: 37.6187
   },
@@ -174,7 +174,7 @@ export const MOCK_EVENTS: MockEvent[] = [
     price_min: 1500, 
     price_max: 2500, 
     image_url: img("concert"), 
-    external_url: "https://t.me/msk_tonight_bot",
+    external_url: null,
     lat: 55.7558,
     lng: 37.5672
   },
@@ -190,7 +190,7 @@ export const MOCK_EVENTS: MockEvent[] = [
     price_min: 2000, 
     price_max: 5000, 
     image_url: img("club"), 
-    external_url: "https://t.me/msk_tonight_bot",
+    external_url: null,
     lat: 55.7234,
     lng: 37.6055
   },
@@ -206,7 +206,7 @@ export const MOCK_EVENTS: MockEvent[] = [
     price_min: 3000, 
     price_max: 5000, 
     image_url: img("bar"), 
-    external_url: "https://t.me/msk_tonight_bot",
+    external_url: null,
     lat: 55.7661,
     lng: 37.6178
   },
@@ -222,7 +222,7 @@ export const MOCK_EVENTS: MockEvent[] = [
     price_min: 1500, 
     price_max: 3000, 
     image_url: img("club"), 
-    external_url: "https://t.me/msk_tonight_bot",
+    external_url: null,
     lat: 55.7617,
     lng: 37.5551
   },
@@ -238,7 +238,7 @@ export const MOCK_EVENTS: MockEvent[] = [
     price_min: 2000, 
     price_max: 4000, 
     image_url: img("bar"), 
-    external_url: "https://t.me/msk_tonight_bot",
+    external_url: null,
     lat: 55.7645,
     lng: 37.6134
   },
