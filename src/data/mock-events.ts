@@ -17,7 +17,7 @@ export interface MockEvent {
   price_min: number;
   price_max: number;
   image_url: string;
-  external_url: string;
+  external_url?: string | null;
   lat: number;
   lng: number;
 }
