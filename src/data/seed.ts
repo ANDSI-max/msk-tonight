@@ -1,4 +1,4 @@
-import { fetchKudaGoEvents } from './kudago-fetcher';
+import { fetchTimePadEvents } from './timepad-fetcher';
 import db from "../database/db";
 import { MOCK_EVENTS } from "./mock-events";
 
@@ -13,12 +13,12 @@ export async function seedEvents(force = false) {
   try {
     const insert = db.prepare("INSERT OR REPLACE INTO events (id, title, description, category, venue_name, address, district, start_time, end_time, price_min, price_max, image_url, external_url, lat, lng) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     
-    console.log("[seed] Fetching KudaGo events...");
-    const kudaGoEvents = await fetchKudaGoEvents(50);
-    console.log("[seed] KudaGo response:", kudaGoEvents?.length || 0);
+    console.log("[seed] Fetching TimePad events...");
+    const events = await fetchTimePadEvents(50);
+    console.log("[seed] TimePad response:", events?.length || 0);
     
-    if (kudaGoEvents && kudaGoEvents.length > 0) {
-      console.log("[seed] Got " + kudaGoEvents.length + " events from KudaGo");
+    if (events && events.length > 0) {
+      console.log("[seed] Got " + events.length + " events from TimePad");
       if (force) {
         console.log("[seed] Clearing old events...");
         db.exec("DELETE FROM events");
@@ -31,10 +31,10 @@ export async function seedEvents(force = false) {
           insert.run(id, e.title, e.description, e.category, e.venue_name, e.address, e.district, fmt(startTime), fmt(endTime), e.price_min, e.price_max, e.image_url, e.external_url, e.lat, e.lng);
         }
       });
-      tx(kudaGoEvents);
-      console.log("[seed] ✅ Loaded " + kudaGoEvents.length + " events from KudaGo");
+      tx(events);
+      console.log("[seed] ✅ Loaded " + events.length + " events from TimePad");
     } else {
-      console.log("[seed] KudaGo returned 0, using mock data");
+      console.log("[seed] TimePad returned 0, using mock data");
       if (force) db.exec("DELETE FROM events");
       const tx = db.transaction((items: typeof MOCK_EVENTS) => {
         let idx = 1;
