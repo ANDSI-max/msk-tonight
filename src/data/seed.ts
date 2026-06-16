@@ -25,7 +25,8 @@ export async function seedEvents(force = false) {
     }
   });
   
-  const kudaGoEvents = await fetchKudaGoEvents(30);`n  const allEvents = kudaGoEvents.length > 0 ? kudaGoEvents : MOCK_EVENTS;
+  const kudaGoEvents = await fetchKudaGoEvents(30);
+  const allEvents = kudaGoEvents.length > 0 ? kudaGoEvents : MOCK_EVENTS;
   tx(allEvents);
   console.log("[seed] Loaded " + allEvents.length + " events.");
 }
