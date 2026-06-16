@@ -104,7 +104,7 @@ app.post(webhookPath, (req, res) => {
 
 let server: any;
 
-async async function start() {
+async function start() {
   console.log("[startup] Запуск сервера...");
   seedEvents(process.env.FORCE_SEED === "true");
   await startBot({ port: PORT, webhookPath });
