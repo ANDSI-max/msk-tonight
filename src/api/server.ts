@@ -106,7 +106,7 @@ let server: any;
 
 async function start() {
   console.log("[startup] Запуск сервера...");
-  seedEvents(process.env.FORCE_SEED === "true");
+  await seedEvents(true); // Всегда очищаем и загружаем KudaGo
   await startBot({ port: PORT, webhookPath });
   server = app.listen(PORT, () => {
     console.log(`[server] Слушаю http://localhost:${PORT}`);
