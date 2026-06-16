@@ -40,7 +40,7 @@ export async function seedEvents(force = false) {
       for (const e of items) {
         const startTime = new Date(e.start_time);
         const endTime = new Date(startTime.getTime() + e.duration_hours * 60 * 60 * 1000);
-        insert.run(i + 1, e.title, e.description, e.category, e.venue_name, e.address, e.district, fmt(startTime), fmt(endTime), e.price_min, e.price_max, e.image_url, e.external_url, e.lat, e.lng);
+        const mockId = Math.abs(parseInt(startTime.getTime().toString().slice(-8)));`n        insert.run(mockId, e.title, e.description, e.category, e.venue_name, e.address, e.district, fmt(startTime), fmt(endTime), e.price_min, e.price_max, e.image_url, e.external_url, e.lat, e.lng);
       }
     });
     tx(MOCK_EVENTS);
