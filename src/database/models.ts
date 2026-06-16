@@ -1,4 +1,4 @@
-import db from "./db";
+﻿import db from "./db";
 
 export interface User {
   id: number;
@@ -200,5 +200,101 @@ export const BookingModel = {
       totalSpent: row.spent || 0,
       totalTickets: row.tickets || 0,
     };
+  },
+};
+// Admin модель для CRUD операций с событиями
+export interface AdminEventInput {
+  title: string;
+  description?: string | null;
+  category?: string | null;
+  venue_name?: string | null;
+  address?: string | null;
+  district?: string | null;
+  start_time?: string | null;
+  end_time?: string | null;
+  price_min?: number | null;
+  price_max?: number | null;
+  image_url?: string | null;
+  external_url?: string | null;
+  lat?: number | null;
+  lng?: number | null;
+}
+
+export const AdminEventModel = {
+  create(data: AdminEventInput): EventRow {
+    const info = db.prepare(`
+      INSERT INTO events (title, description, category, venue_name, address, district, start_time, end_time, price_min, price_max, image_url, external_url, lat, lng)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      data.title,
+      data.description ?? null,
+      data.category ?? null,
+      data.venue_name ?? null,
+      data.address ?? null,
+      data.district ?? null,
+      data.start_time ?? null,
+      data.end_time ?? null,
+      data.price_min ?? null,
+      data.price_max ?? null,
+      data.image_url ?? null,
+      data.external_url ?? null,
+      data.lat ?? null,
+      data.lng ?? null
+    );
+    return db.prepare("SELECT * FROM events WHERE id = ?").get(info.lastInsertRowid) as EventRow;
+  },
+
+  update(id: number, data: AdminEventInput): EventRow | undefined {
+    const existing = this.byId(id);
+    if (!existing) return undefined;
+
+    db.prepare(`
+      UPDATE events SET
+        title = COALESCE(?, title),
+        description = COALESCE(?, description),
+        category = COALESCE(?, category),
+        venue_name = COALESCE(?, venue_name),
+        address = COALESCE(?, address),
+        district = COALESCE(?, district),
+        start_time = COALESCE(?, start_time),
+        end_time = COALESCE(?, end_time),
+        price_min = COALESCE(?, price_min),
+        price_max = COALESCE(?, price_max),
+        image_url = COALESCE(?, image_url),
+        external_url = COALESCE(?, external_url),
+        lat = COALESCE(?, lat),
+        lng = COALESCE(?, lng)
+      WHERE id = ?
+    `).run(
+      data.title ?? null,
+      data.description ?? null,
+      data.category ?? null,
+      data.venue_name ?? null,
+      data.address ?? null,
+      data.district ?? null,
+      data.start_time ?? null,
+      data.end_time ?? null,
+      data.price_min ?? null,
+      data.price_max ?? null,
+      data.image_url ?? null,
+      data.external_url ?? null,
+      data.lat ?? null,
+      data.lng ?? null,
+      id
+    );
+    return this.byId(id);
+  },
+
+  delete(id: number): boolean {
+    const result = db.prepare("DELETE FROM events WHERE id = ?").run(id);
+    return result.changes > 0;
+  },
+
+  listAll(): EventRow[] {
+    return db.prepare("SELECT * FROM events ORDER BY start_time DESC").all() as EventRow[];
+  },
+
+  byId(id: number): EventRow | undefined {
+    return db.prepare("SELECT * FROM events WHERE id = ?").get(id) as EventRow | undefined;
   },
 };

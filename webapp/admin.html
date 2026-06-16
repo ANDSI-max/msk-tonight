@@ -1,0 +1,299 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Админка - МСК.Tonight</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; padding: 20px; }
+  h1 { margin-bottom: 20px; color: #fff; }
+  .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; margin: 5px; }
+  .btn-primary { background: #4CAF50; color: white; }
+  .btn-danger { background: #f44336; color: white; }
+  .btn-warning { background: #ff9800; color: white; }
+  .btn-secondary { background: #607d8b; color: white; }
+  .form-group { margin-bottom: 15px; }
+  label { display: block; margin-bottom: 5px; color: #aaa; }
+  input, textarea, select { width: 100%; padding: 10px; border: 1px solid #444; border-radius: 8px; background: #16213e; color: #fff; font-size: 14px; }
+  textarea { min-height: 80px; resize: vertical; }
+  .event-list { margin-top: 30px; }
+  .event-card { background: #16213e; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #333; }
+  .event-card h3 { color: #fff; margin-bottom: 10px; }
+  .event-card p { color: #aaa; font-size: 13px; margin: 5px 0; }
+  .event-actions { margin-top: 10px; display: flex; gap: 10px; }
+  .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto; }
+  .modal-content { background: #1a1a2e; margin: 20px; padding: 20px; border-radius: 12px; max-width: 600px; margin-left: auto; margin-right: auto; }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .modal-header h2 { color: #fff; }
+  .close-btn { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
+  .error { background: #f44336; color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px; display: none; }
+  .success { background: #4CAF50; color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px; display: none; }
+  .loading { text-align: center; padding: 40px; color: #aaa; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+</style>
+</head>
+<body>
+  <h1>🛠️ Админка событий</h1>
+  
+  <button class="btn btn-primary" onclick="openModal()">+ Добавить событие</button>
+  <button class="btn btn-secondary" onclick="loadEvents()">🔄 Обновить</button>
+  
+  <div id="error" class="error"></div>
+  <div id="success" class="success"></div>
+  
+  <div class="event-list" id="event-list">
+    <div class="loading">Загрузка...</div>
+  </div>
+
+  <!-- Modal для создания/редактирования -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">Добавить событие</h2>
+        <button class="close-btn" onclick="closeModal()">×</button>
+      </div>
+      <form id="event-form" onsubmit="saveEvent(event)">
+        <input type="hidden" id="event-id" />
+        <div class="form-group">
+          <label>Название *</label>
+          <input type="text" id="title" required />
+        </div>
+        <div class="form-group">
+          <label>Описание</label>
+          <textarea id="description"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Категория</label>
+          <select id="category">
+            <option value="">Не выбрана</option>
+            <option value="concert">Концерт</option>
+            <option value="theater">Театр</option>
+            <option value="bar">Бар</option>
+            <option value="club">Клуб</option>
+            <option value="exhibition">Выставка</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Место проведения</label>
+          <input type="text" id="venue_name" />
+        </div>
+        <div class="form-group">
+          <label>Адрес</label>
+          <input type="text" id="address" />
+        </div>
+        <div class="form-group">
+          <label>Район</label>
+          <input type="text" id="district" />
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Дата начала</label>
+            <input type="datetime-local" id="start_time" />
+          </div>
+          <div class="form-group">
+            <label>Дата окончания</label>
+            <input type="datetime-local" id="end_time" />
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Цена от</label>
+            <input type="number" id="price_min" min="0" />
+          </div>
+          <div class="form-group">
+            <label>Цена до</label>
+            <input type="number" id="price_max" min="0" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>URL изображения</label>
+          <input type="url" id="image_url" />
+        </div>
+        <div class="form-group">
+          <label>Внешняя ссылка</label>
+          <input type="url" id="external_url" />
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Широта (lat)</label>
+            <input type="number" step="0.0001" id="lat" />
+          </div>
+          <div class="form-group">
+            <label>Долгота (lng)</label>
+            <input type="number" step="0.0001" id="lng" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%">Сохранить</button>
+      </form>
+    </div>
+  </div>
+
+<script>
+const API_BASE = '/api';
+let tg = window.Telegram.WebApp;
+tg.ready();
+tg.expand();
+
+// Получаем initData из Telegram
+const initData = tg.initData || '';
+const urlParams = new URLSearchParams(window.location.search);
+const debugInitData = urlParams.get('init_data');
+const authData = debugInitData || initData;
+
+async function api(endpoint, options = {}) {
+  const res = await fetch(API_BASE + endpoint, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'x-telegram-init-data': authData,
+      ...options.headers
+    }
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Ошибка');
+  return data;
+}
+
+async function loadEvents() {
+  try {
+    const el = document.getElementById('event-list');
+    el.innerHTML = '<div class="loading">Загрузка...</div>';
+    const { events } = await api('/admin/events');
+    
+    if (!events || events.length === 0) {
+      el.innerHTML = '<div class="loading">Событий нет</div>';
+      return;
+    }
+    
+    el.innerHTML = events.map(e => `
+      <div class="event-card">
+        <h3>${escapeHtml(e.title)}</h3>
+        <p><strong>Категория:</strong> ${e.category || '—'}</p>
+        <p><strong>Место:</strong> ${e.venue_name || '—'}</p>
+        <p><strong>Адрес:</strong> ${e.address || '—'}</p>
+        <p><strong>Дата:</strong> ${e.start_time ? new Date(e.start_time).toLocaleString('ru-RU') : '—'}</p>
+        <p><strong>Цена:</strong> ${e.price_min || 0} - ${e.price_max || 0} ₽</p>
+        <div class="event-actions">
+          <button class="btn btn-warning" onclick="editEvent(${e.id})">✏️ Редактировать</button>
+          <button class="btn btn-danger" onclick="deleteEvent(${e.id})">🗑️ Удалить</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    showError('Ошибка загрузки: ' + e.message);
+  }
+}
+
+function openModal(eventId = null) {
+  document.getElementById('modal').style.display = 'block';
+  document.getElementById('event-form').reset();
+  document.getElementById('event-id').value = '';
+  document.getElementById('modal-title').textContent = eventId ? 'Редактировать событие' : 'Добавить событие';
+}
+
+function closeModal() {
+  document.getElementById('modal').style.display = 'none';
+}
+
+async function editEvent(id) {
+  try {
+    const { event } = await api('/admin/events/' + id);
+    document.getElementById('event-id').value = event.id;
+    document.getElementById('title').value = event.title || '';
+    document.getElementById('description').value = event.description || '';
+    document.getElementById('category').value = event.category || '';
+    document.getElementById('venue_name').value = event.venue_name || '';
+    document.getElementById('address').value = event.address || '';
+    document.getElementById('district').value = event.district || '';
+    document.getElementById('start_time').value = event.start_time ? event.start_time.slice(0, 16) : '';
+    document.getElementById('end_time').value = event.end_time ? event.end_time.slice(0, 16) : '';
+    document.getElementById('price_min').value = event.price_min || '';
+    document.getElementById('price_max').value = event.price_max || '';
+    document.getElementById('image_url').value = event.image_url || '';
+    document.getElementById('external_url').value = event.external_url || '';
+    document.getElementById('lat').value = event.lat || '';
+    document.getElementById('lng').value = event.lng || '';
+    openModal(id);
+  } catch (e) {
+    showError('Ошибка: ' + e.message);
+  }
+}
+
+async function saveEvent(e) {
+  e.preventDefault();
+  const id = document.getElementById('event-id').value;
+  const data = {
+    title: document.getElementById('title').value,
+    description: document.getElementById('description').value || null,
+    category: document.getElementById('category').value || null,
+    venue_name: document.getElementById('venue_name').value || null,
+    address: document.getElementById('address').value || null,
+    district: document.getElementById('district').value || null,
+    start_time: document.getElementById('start_time').value || null,
+    end_time: document.getElementById('end_time').value || null,
+    price_min: document.getElementById('price_min').value ? parseInt(document.getElementById('price_min').value) : null,
+    price_max: document.getElementById('price_max').value ? parseInt(document.getElementById('price_max').value) : null,
+    image_url: document.getElementById('image_url').value || null,
+    external_url: document.getElementById('external_url').value || null,
+    lat: document.getElementById('lat').value ? parseFloat(document.getElementById('lat').value) : null,
+    lng: document.getElementById('lng').value ? parseFloat(document.getElementById('lng').value) : null
+  };
+  
+  try {
+    if (id) {
+      await api('/admin/events/' + id, { method: 'PUT', body: JSON.stringify(data) });
+      showSuccess('Событие обновлено');
+    } else {
+      await api('/admin/events', { method: 'POST', body: JSON.stringify(data) });
+      showSuccess('Событие создано');
+    }
+    closeModal();
+    loadEvents();
+  } catch (e) {
+    showError('Ошибка сохранения: ' + e.message);
+  }
+}
+
+async function deleteEvent(id) {
+  if (!confirm('Удалить это событие?')) return;
+  try {
+    await api('/admin/events/' + id, { method: 'DELETE' });
+    showSuccess('Событие удалено');
+    loadEvents();
+  } catch (e) {
+    showError('Ошибка удаления: ' + e.message);
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('error');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 5000);
+}
+
+function showSuccess(msg) {
+  const el = document.getElementById('success');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3000);
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// Закрытие модального окна по клику вне
+window.onclick = function(event) {
+  const modal = document.getElementById('modal');
+  if (event.target === modal) closeModal();
+}
+
+// Загрузка при старте
+loadEvents();
+</script>
+</body>
+</html>

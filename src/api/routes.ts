@@ -1,4 +1,5 @@
-import { seedEvents } from '../data/seed';
+﻿import { seedEvents } from '../data/seed';
+import adminRouter, { adminMiddleware } from "./admin.routes";
 import { Router, Request, Response, NextFunction } from "express";
 import { validateInitData } from "./auth";
 import {
@@ -13,12 +14,12 @@ import { recalcBadges, getRecommendations, BADGES } from "./events";
 
 const router = Router();
 
-interface AuthedRequest extends Request {
+export interface AuthedRequest extends Request {
   userId?: number;
   telegramId?: number;
 }
 
-// Middleware: достаём userId из initData (заголовок X-Telegram-Init-Data)
+// Middleware: РґРѕСЃС‚Р°С‘Рј userId РёР· initData (Р·Р°РіРѕР»РѕРІРѕРє X-Telegram-Init-Data)
 function authMiddleware(allowEmpty = false) {
   return (req: AuthedRequest, res: Response, next: NextFunction) => {
     const initData =
@@ -28,8 +29,8 @@ function authMiddleware(allowEmpty = false) {
 
     const token = process.env.BOT_TOKEN || "";
 
-    // Режим разработки: если BOT_TOKEN не задан или initData нет, но allowEmpty,
-    // пропускаем под фейковым пользователем (только локально).
+    // Р РµР¶РёРј СЂР°Р·СЂР°Р±РѕС‚РєРё: РµСЃР»Рё BOT_TOKEN РЅРµ Р·Р°РґР°РЅ РёР»Рё initData РЅРµС‚, РЅРѕ allowEmpty,
+    // РїСЂРѕРїСѓСЃРєР°РµРј РїРѕРґ С„РµР№РєРѕРІС‹Рј РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј (С‚РѕР»СЊРєРѕ Р»РѕРєР°Р»СЊРЅРѕ).
     if (!token || !initData) {
       if (allowEmpty || process.env.NODE_ENV !== "production") {
         const fake = UserModel.upsert(0, "dev", "Dev");
@@ -50,7 +51,7 @@ function authMiddleware(allowEmpty = false) {
   };
 }
 
-// POST /api/auth — валидация и регистрация пользователя
+// POST /api/auth вЂ” РІР°Р»РёРґР°С†РёСЏ Рё СЂРµРіРёСЃС‚СЂР°С†РёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
 router.post("/auth", authMiddleware(false), (req: AuthedRequest, res) => {
   const user = UserModel.getByTelegramId(req.telegramId!);
   res.json({ ok: true, user });
@@ -80,7 +81,7 @@ router.post("/events/swipe", authMiddleware(false), (req: AuthedRequest, res) =>
     return res.status(400).json({ error: "bad_request" });
   }
   SwipeModel.save(req.userId!, Number(event_id), direction);
-  // При лайке автоматически добавляем в план
+  // РџСЂРё Р»Р°Р№РєРµ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РґРѕР±Р°РІР»СЏРµРј РІ РїР»Р°РЅ
   if (direction === "like") {
     PlanModel.add(req.userId!, Number(event_id));
   }
@@ -106,7 +107,7 @@ router.post("/plan/remove", authMiddleware(false), (req: AuthedRequest, res) => 
 // GET /api/plan
 router.get("/plan", authMiddleware(false), (req: AuthedRequest, res) => {
   const items = PlanModel.list(req.userId!) as any[];
-  // Подсчёт "друзья идут"
+  // РџРѕРґСЃС‡С‘С‚ "РґСЂСѓР·СЊСЏ РёРґСѓС‚"
   const withFriends = items.map((it) => ({
     ...it,
     friends_count: PlanModel.attendedFriendsCount(it.event_id),
@@ -140,14 +141,14 @@ router.get("/profile", authMiddleware(false), (req: AuthedRequest, res) => {
 });
 
 
-// GET /api/bookings - ������ ������������
+// GET /api/bookings - пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 router.get("/bookings", authMiddleware(false), (req: AuthedRequest, res) => {
   const bookings = BookingModel.list(req.userId!);
   const stats = BookingModel.stats(req.userId!);
   res.json({ ok: true, bookings, stats });
 });
 
-// POST /api/bookings/create - ������� ������������
+// POST /api/bookings/create - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 router.post("/bookings/create", authMiddleware(false), (req: AuthedRequest, res) => {
   const { event_id, ticket_count } = req.body || {};
   if (!event_id) return res.status(400).json({ error: "event_id required" });
@@ -160,7 +161,7 @@ router.post("/bookings/create", authMiddleware(false), (req: AuthedRequest, res)
   
   const booking = BookingModel.create(req.userId!, Number(event_id), tickets, totalPrice, event.external_url || undefined);
   
-  // ��� ������ �� ������ ������������
+  // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
   const stats = BookingModel.stats(req.userId!);
   if (stats.totalBookings === 1) {
     BadgeModel.earn(req.userId!, "first_booking");
@@ -169,7 +170,7 @@ router.post("/bookings/create", authMiddleware(false), (req: AuthedRequest, res)
   res.json({ ok: true, booking });
 });
 
-// POST /api/bookings/cancel - �������� ������������
+// POST /api/bookings/cancel - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 router.post("/bookings/cancel", authMiddleware(false), (req: AuthedRequest, res) => {
   const { booking_id } = req.body || {};
   if (!booking_id) return res.status(400).json({ error: "booking_id required" });
@@ -178,36 +179,36 @@ router.post("/bookings/cancel", authMiddleware(false), (req: AuthedRequest, res)
   res.json({ ok: true });
 });
 
-// POST /api/bookings/use - �������� �������������
+// POST /api/bookings/use - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 router.post("/bookings/use", authMiddleware(false), (req: AuthedRequest, res) => {
   const { booking_id } = req.body || {};
   if (!booking_id) return res.status(400).json({ error: "booking_id required" });
   
   BookingModel.markUsed(req.userId!, Number(booking_id));
   
-  // ��������� streak � ������
+  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ streak пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
   const { streak } = UserModel.updateStreak(req.userId!);
   const earned = recalcBadges(req.userId!, streak);
   
   res.json({ ok: true, streak, earned });
 });
 
-  // GET /api/map - события на карте с координатами (неделя 8-14 июня 2026)
+  // GET /api/map - СЃРѕР±С‹С‚РёСЏ РЅР° РєР°СЂС‚Рµ СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё (РЅРµРґРµР»СЏ 8-14 РёСЋРЅСЏ 2026)
   router.get("/map", authMiddleware(true), (req: AuthedRequest, res) => {
-    // Неделя событий: 8-14 июня 2026
+    // РќРµРґРµР»СЏ СЃРѕР±С‹С‚РёР№: 8-14 РёСЋРЅСЏ 2026
     const weekStart = new Date("2026-06-08T00:00:00");
     const weekEnd = new Date("2026-06-14T23:59:59");
 
     const events = EventModel.list({ limit: 100 }) as any[];
 
-    // Фильтруем события по неделе
+    // Р¤РёР»СЊС‚СЂСѓРµРј СЃРѕР±С‹С‚РёСЏ РїРѕ РЅРµРґРµР»Рµ
     const filtered = events.filter(e => {
       if (!e.start_time) return false;
       const eventDate = new Date(e.start_time);
       return eventDate >= weekStart && eventDate <= weekEnd;
     });
   
-  // Возвращаем только события с координатами
+  // Р’РѕР·РІСЂР°С‰Р°РµРј С‚РѕР»СЊРєРѕ СЃРѕР±С‹С‚РёСЏ СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё
   const withCoords = filtered.filter(e => e.lat && e.lng).map(e => ({
     id: e.id,
     title: e.title,
@@ -223,10 +224,19 @@ router.post("/bookings/use", authMiddleware(false), (req: AuthedRequest, res) =>
 });
 
 
-  // POST /api/seed/force - обновление событий из KudaGo
+  // POST /api/seed/force - РѕР±РЅРѕРІР»РµРЅРёРµ СЃРѕР±С‹С‚РёР№ РёР· KudaGo
   router.post("/seed/force", (req, res) => {
     console.log("[api] Force seeding...");
     seedEvents(true).then(() => res.json({ ok: true })).catch(e => res.status(500).json({ error: e.message }));
   });
 
+
+// Подключаем admin routes с префиксом /admin
+router.use("/admin", adminMiddleware(), adminRouter);
+
 export default router;
+
+
+
+
+
