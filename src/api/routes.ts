@@ -1,3 +1,4 @@
+import { seedEvents } from '../data/seed';
 import { Router, Request, Response, NextFunction } from "express";
 import { validateInitData } from "./auth";
 import {
@@ -220,5 +221,12 @@ router.post("/bookings/use", authMiddleware(false), (req: AuthedRequest, res) =>
   
   res.json({ ok: true, events: withCoords, date: weekEnd.toISOString() });
 });
+
+
+  // POST /api/seed/force - обновление событий из KudaGo
+  router.post("/seed/force", (req, res) => {
+    console.log("[api] Force seeding...");
+    seedEvents(true).then(() => res.json({ ok: true })).catch(e => res.status(500).json({ error: e.message }));
+  });
 
 export default router;
