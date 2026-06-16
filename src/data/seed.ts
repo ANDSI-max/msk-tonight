@@ -1,3 +1,4 @@
+import { fetchKudaGoEvents } from './kudago-fetcher';
 import db from "../database/db";
 import { MOCK_EVENTS } from "./mock-events";
 
@@ -6,7 +7,7 @@ function fmt(d: Date | string): string {
   return d.toISOString().slice(0, 19).replace("T", " ");
 }
 
-export function seedEvents(force = false) {
+export async function seedEvents(force = false) {
   const row = db.prepare("SELECT COUNT(*) AS c FROM events").get() as { c: number };
   if (!force && row.c > 0) {
     console.log("[seed] DB has " + row.c + " events, skipping.");
@@ -24,7 +25,7 @@ export function seedEvents(force = false) {
     }
   });
   
-  const allEvents = MOCK_EVENTS;
+  const kudaGoEvents = await fetchKudaGoEvents(30);`n  const allEvents = kudaGoEvents.length > 0 ? kudaGoEvents : MOCK_EVENTS;
   tx(allEvents);
   console.log("[seed] Loaded " + allEvents.length + " events.");
 }
