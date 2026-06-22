@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --tg-theme-bg-color: #ffffff;
   --tg-theme-text-color: #000000;
   --tg-theme-hint-color: #999999;
@@ -35,7 +35,7 @@ html, body {
   flex-direction: column;
 }
 
-/* Навигация */
+/* РќР°РІРёРіР°С†РёСЏ */
 .bottom-nav {
   display: flex;
   background: var(--tg-theme-bg-color);
@@ -67,7 +67,7 @@ html, body {
   font-size: 24px;
 }
 
-/* Табы */
+/* РўР°Р±С‹ */
 .tab {
   flex: 1;
   overflow-y: auto;
@@ -80,7 +80,7 @@ html, body {
   display: block;
 }
 
-/* Фильтры */
+/* Р¤РёР»СЊС‚СЂС‹ */
 .filters {
   display: flex;
   gap: 8px;
@@ -98,7 +98,7 @@ html, body {
   outline: none;
 }
 
-/* Карточки событий */
+/* РљР°СЂС‚РѕС‡РєРё СЃРѕР±С‹С‚РёР№ */
 .cards-container {
   position: relative;
   min-height: 400px;
@@ -208,7 +208,7 @@ html, body {
   color: var(--accent);
 }
 
-/* План */
+/* РџР»Р°РЅ */
 .section-title {
   font-size: 20px;
   margin-bottom: 16px;
@@ -270,7 +270,7 @@ html, body {
   flex: none;
 }
 
-/* Профиль */
+/* РџСЂРѕС„РёР»СЊ */
 .profile-header {
   background: var(--secondary-bg);
   border-radius: 16px;
@@ -387,7 +387,7 @@ html, body {
 }
 
 
-/* ������������ */
+/* Бронирования */
 .booking-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -501,3 +501,48 @@ html, body {
 .booking-item.status-cancelled {
   opacity: 0.6;
 }
+
+/* Навигационные стрелки на карточке */
+.card-nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #2481cc;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: background 0.2s, transform 0.2s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card-nav-arrow:active {
+  background: rgba(36, 129, 204, 0.2);
+  transform: translateY(-50%) scale(0.9);
+}
+
+.card-nav-prev {
+  left: 10px;
+}
+
+.card-nav-next {
+  right: 10px;
+}
+
+/* Адаптация картинки под карточку с тематическими изображениями */
+.card-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  background: var(--secondary-bg);
+}
+
