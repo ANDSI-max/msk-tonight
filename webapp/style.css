@@ -546,3 +546,13 @@ html, body {
   background: var(--secondary-bg);
 }
 
+
+/* Счётчик карусели */
+.card-counter {
+  text-align: center;
+  padding: 8px;
+  font-size: 13px;
+  color: var(--hint);
+  font-weight: 500;
+}
+

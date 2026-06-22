@@ -1,12 +1,13 @@
 ﻿/**
  * МСК.Tonight - Frontend Logic
- * Версия: 2026-06-23 (Стрелки навигации + тематические картинки)
+ * Версия: 2026-06-23 (Бесконечная карусель + Исправленная карта)
  */
 const state = {
   events: [],
   plan: [],
   profile: null,
-  currentCardIndex: 0
+  currentCardIndex: 0,
+  totalSwipes: 0
 };
 
 const API_BASE = window.location.origin;
@@ -89,6 +90,7 @@ async function loadEvents() {
     if (data.ok) {
       state.events = data.events || [];
       state.currentCardIndex = 0;
+      state.totalSwipes = 0;
       renderCards();
     } else {
       container.innerHTML = '<div class="empty-state">Ошибка загрузки</div>';
@@ -102,24 +104,54 @@ function loadMap() {
   const container = document.getElementById("map-container");
   if (!container) return;
   container.innerHTML = '<div class="loading">Загружаю карту...</div>';
+  
   apiGet("/api/map").then(data => {
     if (data.ok && data.events && data.events.length > 0) {
-      const markers = data.events.map(e => {
-        return `📍 ${e.title}`;
-      }).join("<br>");
-      container.innerHTML = `
-        <div style="width:100%;height:100%;position:relative;">
-          <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=37.3,55.5,37.9,55.9&layer=mapnik" style="width:100%;height:100%;border:none;"></iframe>
-          <div style="position:absolute;bottom:10px;left:10px;right:10px;background:rgba(255,255,255,0.95);padding:15px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.2);max-height:120px;overflow-y:auto;font-size:12px;">
-            <div style="font-weight:600;margin-bottom:5px;">События рядом:</div>
-            <div>${markers}</div>
-          </div>
-        </div>`;
+      const events = data.events;
+      // Вычисляем bounding box
+      const lats = events.map(e => e.lat).filter(l => l);
+      const lngs = events.map(e => e.lng).filter(l => l);
+      
+      if (lats.length > 0 && lngs.length > 0) {
+        const minLat = Math.min(...lats) - 0.05;
+        const maxLat = Math.max(...lats) + 0.05;
+        const minLng = Math.min(...lngs) - 0.05;
+        const maxLng = Math.max(...lngs) + 0.05;
+        
+        const bbox = `${minLng},${minLat},${maxLng},${maxLat}`;
+        const centerLat = (minLat + maxLat) / 2;
+        const centerLng = (minLng + maxLng) / 2;
+        
+        // Генерируем маркеры
+        const markers = events.map((e, i) => {
+          if (!e.lat || !e.lng) return '';
+          return `<div style="background:rgba(36,129,204,0.8);color:white;padding:8px;border-radius:8px;margin:5px;max-width:250px;">
+            <strong>${escapeHtml(e.title)}</strong><br>
+            <small>${escapeHtml(e.venue_name || '')}</small><br>
+            <small>${formatPrice(e.price_min, e.price_max)}</small>
+          </div>`;
+        }).join('');
+        
+        container.innerHTML = `
+          <div style="width:100%;height:100%;position:relative;">
+            <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${centerLat},${centerLng}" 
+              style="width:100%;height:100%;border:none;" 
+              onerror="this.parentElement.innerHTML='<div class=\'empty-state\'>Карта загружается...<br><small>Если не отображается, откройте в браузере</small></div>'">
+            </iframe>
+            <div style="position:absolute;bottom:10px;left:10px;right:10px;background:rgba(255,255,255,0.95);padding:12px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.2);max-height:150px;overflow-y:auto;font-size:13px;">
+              <div style="font-weight:600;margin-bottom:8px;">📍 События на карте:</div>
+              ${markers}
+            </div>
+          </div>`;
+      } else {
+        container.innerHTML = '<div class="empty-state">📍 Нет координат</div>';
+      }
     } else {
-      container.innerHTML = '<div class="empty-state">Карта временно недоступна</div>';
+      container.innerHTML = '<div class="empty-state">📍 Карта временно недоступна</div>';
     }
-  }).catch(() => {
-    container.innerHTML = '<div class="empty-state">Ошибка карты</div>';
+  }).catch((e) => {
+    console.error("Map error:", e);
+    container.innerHTML = '<div class="empty-state">❌ Ошибка карты<br><small>Попробуйте позже</small></div>';
   });
 }
 
@@ -127,21 +159,28 @@ function renderCards() {
   const container = document.getElementById("events-container");
   if (!container) return;
   container.innerHTML = "";
+  
   if (!state.events || state.events.length === 0) {
     container.innerHTML = '<div class="empty-state"><div>Событий нет</div></div>';
     return;
   }
-  state.events.slice(state.currentCardIndex).forEach((event, idx) => {
-    const card = createCard(event, idx === 0);
-    if (idx === 0) container.appendChild(card);
-  });
-  if (state.events.length > state.currentCardIndex) {
-    tg.MainButton.setParams({ text: "Пропустить событие", isEnabled: true });
-    tg.MainButton.show();
-    tg.MainButton.onClick(onSkip);
-  } else {
-    tg.MainButton.hide();
-  }
+  
+  // Бесконечная карусель: используем модуль для циклического доступа
+  const event = state.events[state.currentCardIndex % state.events.length];
+  const card = createCard(event, true);
+  container.appendChild(card);
+  
+  // Показываем номер события в подборке
+  const counter = document.createElement("div");
+  counter.className = "card-counter";
+  counter.textContent = `${(state.currentCardIndex % state.events.length) + 1} / ${state.events.length}`;
+  container.appendChild(counter);
+  
+  // MainButton показываем всегда
+  tg.MainButton.setParams({ text: "Пропустить событие", isEnabled: true });
+  tg.MainButton.show();
+  tg.MainButton.offClick(onSkip);
+  tg.MainButton.onClick(onSkip);
 }
 
 function createCard(event, isTop) {
@@ -204,22 +243,26 @@ function navigateCard(direction) {
   const currentCard = container.querySelector(".card");
   
   if (direction < 0) {
-    // Назад
+    // Назад - просто показываем предыдущее
     if (state.currentCardIndex > 0) {
       state.currentCardIndex--;
       currentCard.remove();
-      const prevEvent = state.events[state.currentCardIndex];
-      if (prevEvent) {
-        container.appendChild(createCard(prevEvent, true));
-      }
+      const counter = container.querySelector(".card-counter");
+      if (counter) counter.remove();
+      renderCards();
+    } else {
+      // Если начало - идём в конец (бесконечная карусель)
+      state.currentCardIndex = state.events.length - 1;
+      currentCard.remove();
+      const counter = container.querySelector(".card-counter");
+      if (counter) counter.remove();
+      renderCards();
     }
   } else {
-    // Вперёд (свайп влево)
+    // Вперёд - свайп влево
     if (currentCard) {
-      const currentEvent = state.events[state.currentCardIndex];
-      if (currentEvent) {
-        swipe(currentCard, currentEvent, "left");
-      }
+      const currentEvent = state.events[state.currentCardIndex % state.events.length];
+      swipe(currentCard, currentEvent, "left");
     }
   }
 }
@@ -266,24 +309,38 @@ function setupSwipe(card, event) {
 async function swipe(card, event, direction) {
   tg.HapticFeedback.impactOccurred("medium");
   card.classList.add(direction === "left" ? "swipe-left" : "swipe-right");
+  
   try {
     await apiPost("/api/events/swipe", { event_id: event.id, direction: direction === "right" ? "like" : "dislike" });
   } catch (e) { console.error("Swipe error:", e); }
+  
   setTimeout(() => {
     card.remove();
+    const counter = document.querySelector(".card-counter");
+    if (counter) counter.remove();
+    
     state.currentCardIndex++;
-    const nextEvent = state.events[state.currentCardIndex];
+    state.totalSwipes++;
+    
+    // Бесконечная карусель - показываем следующее событие
+    const nextEvent = state.events[state.currentCardIndex % state.events.length];
     if (nextEvent) {
       const container = document.getElementById("events-container");
       container.appendChild(createCard(nextEvent, true));
-    } else { renderCards(); }
+      
+      // Обновляем счётчик
+      const counter = document.createElement("div");
+      counter.className = "card-counter";
+      counter.textContent = `${(state.currentCardIndex % state.events.length) + 1} / ${state.events.length}`;
+      container.appendChild(counter);
+    }
   }, 300);
 }
 
 function onSkip() {
   const card = document.querySelector("#events-container .card");
   if (card) {
-    const event = state.events[state.currentCardIndex];
+    const event = state.events[state.currentCardIndex % state.events.length];
     if (event) swipe(card, event, "left");
   }
 }
@@ -473,7 +530,7 @@ function initApp() {
       if (tabName === "plan") loadPlan();
       if (tabName === "bookings") loadBookings();
       if (tabName === "profile") loadProfile();
-      if (tabName === "today") { state.currentCardIndex = 0; loadEvents(); loadMap(); }
+      if (tabName === "today") { state.currentCardIndex = 0; state.totalSwipes = 0; loadEvents(); loadMap(); }
     });
   });
   const todayBtn = document.querySelector('.nav-btn[data-tab="today"]');
